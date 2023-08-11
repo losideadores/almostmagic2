@@ -28,6 +28,7 @@
     "unbuild": "^1.2.1"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "openai": "^3.3.0"
   }
 }
