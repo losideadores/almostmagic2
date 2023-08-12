@@ -11,6 +11,8 @@ export async function run() {
 
   config();
 
+  debugger;
+
   // Prompt the user what kind of examples they want to run
   const { example } = await prompt<{ example: string; }>({
     type: 'select',

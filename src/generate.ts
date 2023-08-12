@@ -1,12 +1,15 @@
+import yaml, { YAMLException } from "js-yaml";
 import { Configuration, OpenAIApi } from "openai";
 import { composeChatPrompt } from "./composeChatPrompt";
-import { Outputs, Inputs, GenerateOptions, JsonPrimitive } from "./types";
+import { Outputs, Inputs, JsonPrimitive } from "./types";
+import { GenerateOptions } from "./GenerateOptions";
 import { $throw, assign, mutate } from "vovas-utils";
+import _ from "lodash";
 
 export const generate = async <O extends string, I extends string>(
   outputs: Outputs<O>,
   inputs: Inputs<I>,
-  options?: GenerateOptions
+  options?: GenerateOptions<O | I>
 ) => {
   
   const { openaiApiKey, meta, ...openaiOptions } = options ?? {};
@@ -31,9 +34,12 @@ export const generate = async <O extends string, I extends string>(
   meta && assign(meta, { rawContent });
 
   try {
-    return JSON.parse(rawContent ?? '') as Record<O, JsonPrimitive>;
+    return _.mapKeys(
+      yaml.load(rawContent ?? '') as Record<string, JsonPrimitive>,
+      (__, key) => _.camelCase(key)
+    ) as Record<O, JsonPrimitive>;
   } catch ( error ) {
-    return error instanceof SyntaxError
+    return error instanceof YAMLException
       ? undefined
       : Promise.reject(error);
   };
