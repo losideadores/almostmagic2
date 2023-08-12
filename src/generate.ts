@@ -22,7 +22,7 @@ export const generate = async <O extends string, I extends string>(
   console.log({ messages });
 
   const { data: { choices: [{ message }] }} = await openai.createChatCompletion({
-    model: 'gpt-4',
+    model: 'gpt-3.5-turbo',
     ...openaiOptions,
     messages
   });

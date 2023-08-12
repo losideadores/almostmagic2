@@ -1,7 +1,15 @@
-import dedent from "dedent-js";
+import yaml from "js-yaml";
+import _ from "lodash";
 import { chat } from "./chatMessage";
 import { Inputs, Outputs } from "./types";
-import _ from "lodash";
+
+const sentenceCase = (str: string) => _.upperFirst(_.toLower(_.startCase(str)));
+
+const dump = (obj: any) => yaml.dump(
+  _.isPlainObject(obj)
+    ? _.mapKeys(obj, (v, k) => sentenceCase(k))
+    : obj
+);
 
 export const composeChatPrompt = <O extends string, I extends string>(
   outputs: Outputs<O>,
@@ -16,30 +24,13 @@ export const composeChatPrompt = <O extends string, I extends string>(
         : Object.keys(outputs);
 
   return [
-    chat.system('You emulate a JavaScript console.'),
+    chat.system('You provide structured (JSON-parseable) output based on arbitrary inputs and a specification of the output keys the user wants to receive'),
 
-    chat.user(dedent`
-    import AI from 'ai-llm-inference'; // the package allows inferring any textual data in a structured way using a large language model
+    chat.user(`What the user wants to infer:\n${dump(outputs)}`),
 
-    let ai = new AI({ outputs: ${JSON.stringify(outputs)} });
-  `),
+    chat.user(`User input:\n${dump(inputs)}`),
 
-    chat.assistant('undefined'),
-    // (We want to prime the model to provide an "authentic" experience, so using a `let` clause returns `undefined`.)
-    chat.user(dedent`
-    let inputs = ${JSON.stringify(inputs ?? { seed: _.random(1000, 9999) })};
-    let outputs = ai.infer( inputs );
-    JSON.stringify( Object.keys( outputs ) );
-  `),
-
-    chat.assistant(JSON.stringify(outputKeys)),
-    // (Here, we want to achieve two things:
-    // 1. Make sure the model "understands" how we expect it to present JSON-stringified data
-    // 2. Make sure it knows which keys we expect in the next step)
-
-    chat.user('JSON.stringify( outputs )'),
-    // If all goes well, the model should return a JSON-stringified object with the keys we expect and the values we want. This is kind of an “inception” moment, where we ask the model to pretend to be itself, thus inferring the data we want it to infer.
-    // (A double inception is that the comment above is also inferred by the model, just like this one.).
+    chat.user(`Infer the output below as a single, JSON-parseable object with the following keys: ${outputKeys.join(', ')}. Do not include any additional text or keys.`),
   ];
 
 };

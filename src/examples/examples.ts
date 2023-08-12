@@ -4,7 +4,7 @@ import { generateOrThrow } from '../generate';
 import { GenerateMeta } from '../types';
 
 if ( require.main === module ) {
-  run();
+  run ();
 }
 
 export async function run() {
@@ -36,9 +36,9 @@ export async function run() {
           message: 'Enter an email address',
         });
 
-        const { name } = await generateOrThrow('name', { email }, { meta });
+        const { firstName, lastName } = await generateOrThrow(['firstName', 'lastName'], { email }, { meta });
 
-        console.log(`Here’s a name based on the email address: ${name}`);
+        console.log({ firstName, lastName });
 
         break;
 
@@ -57,9 +57,11 @@ export async function run() {
           },
         ]);
 
-        const { detailedAttitudeDescription: attitude } = await generateOrThrow('detailedAttitudeDescription', { nation, topic }, { meta });
+        const { attitude } = await generateOrThrow({
+          attitude: "Detailed description of a nation's attitude to a certain topic, including any historical context, current events, and future forecasts."
+        }, { nation, topic }, { meta });
 
-        console.log(attitude);
+        console.log({ attitude });
 
       default:
 
