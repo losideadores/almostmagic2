@@ -65,23 +65,23 @@ export const composeChatPrompt = < O extends PropertySpecs<string>, I extends In
 };
 
 
-const testPrompt = composeChatPrompt(
-  {
-    born: 'the person’s birth year (number)',
-    bio: 'one-two-sentence bio',
-    seeAlso: 'titles of related articles (array of strings)',
-  } as const,
-  {
-    person: 'William Shakespeare',
-  },
-  { 
-    examples: [
-      {
-        person: 'Donald Trump',
-        born: 1946,
-        bio: '45th president of the United States',
-        seeAlso: ['Trump Tower', 'US election 2020', 'Stormy Daniels'],
-      }
-    ]
-  }
-);
+// const testPrompt = composeChatPrompt(
+//   {
+//     born: 'the person’s birth year (number)',
+//     bio: 'one-two-sentence bio',
+//     seeAlso: 'titles of related articles (array of strings)',
+//   } as const,
+//   {
+//     person: 'William Shakespeare',
+//   },
+//   { 
+//     examples: [
+//       {
+//         person: 'Donald Trump',
+//         born: 1946,
+//         bio: '45th president of the United States. Famous for his provocative, populist style of politics.',
+//         seeAlso: ['Trump Tower', 'US election 2020', 'Stormy Daniels'],
+//       }
+//     ]
+//   }
+// );
