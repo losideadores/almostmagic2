@@ -20,8 +20,6 @@ declare const chat: Record<ChatCompletionRequestMessageRoleEnum, (content: strin
 
 declare const composeChatPrompt: <O extends string, I extends string>(outputs: Outputs<O>, inputs: Inputs<I>, { description, examples }?: Partial<GenerateOptions<O | I>>) => openai.ChatCompletionRequestMessage[];
 
-declare function run(): Promise<void>;
-
 declare const getPostalCode: (city: string) => Promise<Record<"postalCode", JsonPrimitive> | undefined>;
 
 declare const generate: <O extends string, I extends string>(outputs: Outputs<O>, inputs: Inputs<I>, options?: GenerateOptions<O | I> | undefined) => Promise<Record<O, JsonPrimitive> | undefined>;
@@ -36,4 +34,4 @@ declare class Magic<O extends string, I extends string> {
     generateFor(inputs: Inputs<I>): Promise<Record<O, JsonPrimitive> | undefined>;
 }
 
-export { GenerateMeta, GenerateOptions, Inputs, JsonPrimitive, Magic, MagicConfig, Outputs, chat, chatMessage, composeChatPrompt, generate, generateOrThrow, getPostalCode, run };
+export { GenerateMeta, GenerateOptions, Inputs, JsonPrimitive, Magic, MagicConfig, Outputs, chat, chatMessage, composeChatPrompt, generate, generateOrThrow, getPostalCode };

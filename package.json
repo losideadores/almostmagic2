@@ -31,7 +31,6 @@
     "@types/js-yaml": "^4.0.5",
     "dedent-js": "^1.0.1",
     "dotenv": "^16.3.1",
-    "enquirer": "^2.4.1",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "openai": "^3.3.0",

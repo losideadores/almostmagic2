@@ -1,4 +1,5 @@
 export * from './GenerateOptions';
+export * from './PropertySpecs';
 export * from './chatMessage';
 export * from './composeChatPrompt';
 export * from './examples';

@@ -1,10 +1,11 @@
 import { GenerateOptions } from "./GenerateOptions";
 import { generate } from "./generate";
-import { Inputs, Outputs } from "./types";
+import { Inputs } from "./types";
+import { PropertySpecs } from "./PropertySpecs";
 
 export type MagicConfig<O extends string, I extends string> =
   GenerateOptions<O | I> & {
-    outputs: Outputs<O>
+    outputs: PropertySpecs<O>
   }
 
 export class Magic<
