@@ -21,7 +21,7 @@ const envelope = (char: string) => (str: string) => `${char}${str}${char}`;
 
 export const composeChatPrompt = < O extends PropertySpecs<string>, I extends Inputs<string> >(
   outputs: O,
-  inputs: I,
+  inputs?: I | undefined,
   { description, examples }: GenerateOptions<O, I> = {}
 ) => {
 
@@ -33,55 +33,33 @@ export const composeChatPrompt = < O extends PropertySpecs<string>, I extends In
         : Object.keys(outputs)
   );
 
+  const randomSeed = () => ({ seed: _.random(1000, 9999) });
+
   return [
     chat.system(description ?? 'You come up with (artificially generate) arbitrary data based on arbitrary inputs, using the best of your AI abilities.'),
+
+    chat.system(`What the user wants to come up with:\n${serialize(outputs, true)}`),
 
     ...(
       examples
         ? [
             ...examples.map(example => [
-              chat.user(serialize(_.pick(example, _.keys(inputs)), false)),
+              chat.user(serialize(
+                inputs
+                  ? _.pick(example, _.keys(inputs))
+                  : randomSeed()
+                , false)),
               chat.assistant(serialize(_.pick(example, outputKeys), false))
             ]).flat(),
-            chat.user(serialize(inputs, false)),
+            chat.user(serialize(inputs ?? randomSeed(), false)),
           ]
         : [
-          chat.user(`What the user wants to come up with:\n${serialize(outputs, true)}`),
-          chat.user(`What the user provides:\n${serialize(inputs, true)}`),
-        ]
-    ),
-
-    ...(
-      examples 
-        ? [] 
-        : [
-          chat.user(`Come up with an output based on the input provided by the user as a YAML object with the following keys: ${
+          chat.user(`What the user provides:\n${serialize(inputs ?? randomSeed(), true)}`),
+          chat.system(`Come up with an output based on the input provided by the user as a YAML object with the following keys: ${
             outputKeys.map(envelope('`')).join(', ')
-          } and primitive (string/number/boolean/null) values. Do not include any additional text, keys, or formatting.`),
+          }. Do not include any additional text, keys, or formatting.`),
         ]
-    ),
+    )
   ];
 
 };
-
-
-// const testPrompt = composeChatPrompt(
-//   {
-//     born: 'the person’s birth year (number)',
-//     bio: 'one-two-sentence bio',
-//     seeAlso: 'titles of related articles (array of strings)',
-//   } as const,
-//   {
-//     person: 'William Shakespeare',
-//   },
-//   { 
-//     examples: [
-//       {
-//         person: 'Donald Trump',
-//         born: 1946,
-//         bio: '45th president of the United States. Famous for his provocative, populist style of politics.',
-//         seeAlso: ['Trump Tower', 'US election 2020', 'Stormy Daniels'],
-//       }
-//     ]
-//   }
-// );

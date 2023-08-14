@@ -10,7 +10,7 @@ import _ from "lodash";
 
 export const generate = async < O extends PropertySpecs<string>, I extends Inputs<string> >(
   outputSpecs: O,
-  inputs: I,
+  inputs?: I,
   options?: GenerateOptions<O, I>
 ): Promise<Outputs<O> | undefined> => {
   
@@ -27,7 +27,7 @@ export const generate = async < O extends PropertySpecs<string>, I extends Input
   console.log({ messages });
 
   const { data: { choices: [{ message }] }} = await openai.createChatCompletion({
-    model: 'gpt-4',
+    model: 'gpt-3.5-turbo',
     ...openaiOptions,
     messages
   });
