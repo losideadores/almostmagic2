@@ -1,17 +1,17 @@
 import yaml, { YAMLException } from "js-yaml";
-import { Configuration, OpenAIApi } from "openai";
-import { composeChatPrompt } from "./composeChatPrompt";
-import { Inputs, JsonPrimitive } from "./types";
-import { GenerateMeta } from "./GenerateMeta";
-import { Specs, ExpectedModelOutput, GenerateOutput, modelToGenerateOutput } from "./Specs";
-import { matchesSpecs } from "./matchesSpecs";
-import { GenerateOptions } from "./GenerateOptions";
-import { $throw, assign, mutate } from "vovas-utils";
 import _ from "lodash";
+import { Configuration, OpenAIApi } from "openai";
+import { $throw, mutate } from "vovas-utils";
+import { GenerateMeta } from "./GenerateMeta";
+import { GenerateOptions } from "./GenerateOptions";
+import { GenerateOutput, Specs, modelToGenerateOutput } from "./Specs";
+import { composeChatPrompt } from "./composeChatPrompt";
+import { matchesSpecs } from "./matchesSpecs";
+import { Inputs } from "./types";
 
 export const defaultMeta = new GenerateMeta();
 
-export const generate = async < O extends Specs<string>, I extends Inputs<string> >(
+export const generate = async < O extends Specs, I extends Inputs >(
   outputSpecs: O,
   inputs?: I,
   options?: GenerateOptions<O, I>
@@ -59,7 +59,7 @@ export const generate = async < O extends Specs<string>, I extends Inputs<string
 
 };
 
-export const generateOrThrow = < O extends Specs<string>, I extends Inputs<string> >(
+export const generateOrThrow = < O extends Specs, I extends Inputs >(
   ...args: Parameters<typeof generate<O, I>>
 ) => generate<O, I>(...args).then(result =>
   result ?? $throw('Failed to generate output')

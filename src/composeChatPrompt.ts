@@ -19,7 +19,7 @@ const serialize = (obj: any, sentencify: boolean ) => yaml.dump(
 
 const envelope = (char: string) => (str: string) => `${char}${str}${char}`;
 
-export const composeChatPrompt = < O extends Specs<string>, I extends Inputs<string> >(
+export const composeChatPrompt = < O extends Specs, I extends Inputs >(
   outputs: O,
   inputs?: I | undefined,
   { description, examples }: GenerateOptions<O, I> = {}

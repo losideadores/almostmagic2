@@ -3,14 +3,14 @@ import { generate } from "./generate";
 import { Inputs } from "./types";
 import { Specs } from "./Specs";
 
-export type GeneratorConfig<O extends Specs<string>, I extends Inputs<string>> =
+export type GeneratorConfig<O extends Specs, I extends Inputs> =
   GenerateOptions<O, I> & {
     outputSpecs: O,
   }
 
 export class Generator<
-  O extends Specs<string>,
-  I extends Inputs<string>
+  O extends Specs,
+  I extends Inputs
 > {
 
   constructor(

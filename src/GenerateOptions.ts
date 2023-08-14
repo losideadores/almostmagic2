@@ -4,8 +4,8 @@ import { GenerateMeta } from "./GenerateMeta";
 import { Specs, ExpectedModelOutput } from "./Specs";
 
 export type GenerateOptions<
-  O extends Specs<string>,
-  I extends Inputs<string>
+  O extends Specs,
+  I extends Inputs
 > = Partial<Pick<
   CreateChatCompletionRequest, 'model' | 'temperature' | 'top_p' | 'max_tokens' | 'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'
 >> & {

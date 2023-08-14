@@ -1,7 +1,7 @@
 import { Specs, ExpectedModelOutput } from "./Specs";
 
 
-export function matchesSpecs<S extends Specs<string>>(obj: any, specs: S): obj is ExpectedModelOutput<S> {
+export function matchesSpecs<S extends Specs>(obj: any, specs: S): obj is ExpectedModelOutput<S> {
   if (typeof specs === 'string') {
     return typeof obj[specs] === 'string';
   };
