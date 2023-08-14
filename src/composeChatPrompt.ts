@@ -2,7 +2,7 @@ import yaml from "js-yaml";
 import _ from "lodash";
 import { chat } from "./chatMessage";
 import { Inputs } from "./types";
-import { PropertySpecs } from "./PropertySpecs";
+import { Specs } from "./Specs";
 import { GenerateOptions } from "./GenerateOptions";
 
 const sentenceCase = (str: string) => _.upperFirst(_.toLower(_.startCase(str)));
@@ -19,7 +19,7 @@ const serialize = (obj: any, sentencify: boolean ) => yaml.dump(
 
 const envelope = (char: string) => (str: string) => `${char}${str}${char}`;
 
-export const composeChatPrompt = < O extends PropertySpecs<string>, I extends Inputs<string> >(
+export const composeChatPrompt = < O extends Specs<string>, I extends Inputs<string> >(
   outputs: O,
   inputs?: I | undefined,
   { description, examples }: GenerateOptions<O, I> = {}

@@ -1,9 +1,10 @@
 import { CreateChatCompletionRequest } from "openai";
-import { GenerateMeta, Inputs } from "./types";
-import { PropertySpecs, Outputs } from "./PropertySpecs";
+import { Inputs } from "./types";
+import { GenerateMeta } from "./GenerateMeta";
+import { Specs, ExpectedModelOutput } from "./Specs";
 
 export type GenerateOptions<
-  O extends PropertySpecs<string>,
+  O extends Specs<string>,
   I extends Inputs<string>
 > = Partial<Pick<
   CreateChatCompletionRequest, 'model' | 'temperature' | 'top_p' | 'max_tokens' | 'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'
@@ -12,6 +13,6 @@ export type GenerateOptions<
   meta?: GenerateMeta;
   description?: string;
   examples?: (
-    Outputs<O> & I
+    ExpectedModelOutput<O> & I
   )[];
 };

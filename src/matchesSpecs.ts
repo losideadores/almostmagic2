@@ -1,7 +1,7 @@
-import { PropertySpecs, Outputs } from "./PropertySpecs";
+import { Specs, ExpectedModelOutput } from "./Specs";
 
 
-export function matchesSpecs<Specs extends PropertySpecs<string>>(obj: any, specs: Specs): obj is Outputs<Specs> {
+export function matchesSpecs<S extends Specs<string>>(obj: any, specs: S): obj is ExpectedModelOutput<S> {
   if (typeof specs === 'string') {
     return typeof obj[specs] === 'string';
   };

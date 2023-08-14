@@ -1,6 +1,6 @@
-export type PropertySpecs<Keys extends string> = Keys | Keys[] | Record<Keys, string>;
+export type Specs<Keys extends string> = Keys | Keys[] | Record<Keys, string>;
 
-export type Outputs<O extends PropertySpecs<string>> = 
+export type ExpectedModelOutput<O extends Specs<string>> = 
   O extends string 
     ? Record<O, string> 
   : O extends string[] 
@@ -19,7 +19,19 @@ export type Outputs<O extends PropertySpecs<string>> =
           : string;
     } : never;
 
-type TestOutputs = Outputs<{
+export type GenerateOutput<O extends Specs<string>> =
+  O extends string
+    ? string
+    : ExpectedModelOutput<O>;
+
+export const modelToGenerateOutput = <O extends Specs<string>>(modelOutput: ExpectedModelOutput<O>, specs: O) => (
+  typeof specs === 'string'
+    ? modelOutput[specs]
+    : modelOutput 
+) as GenerateOutput<O>;
+  
+
+type TestOutputs = ExpectedModelOutput<{
   groceries: 'list of items to buy';
   unitPrices: 'unit prices for all items (array of numbers)';
   total: 'amount to pay';

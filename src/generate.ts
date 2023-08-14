@@ -2,19 +2,22 @@ import yaml, { YAMLException } from "js-yaml";
 import { Configuration, OpenAIApi } from "openai";
 import { composeChatPrompt } from "./composeChatPrompt";
 import { Inputs, JsonPrimitive } from "./types";
-import { PropertySpecs, Outputs } from "./PropertySpecs";
+import { GenerateMeta } from "./GenerateMeta";
+import { Specs, ExpectedModelOutput, GenerateOutput, modelToGenerateOutput } from "./Specs";
 import { matchesSpecs } from "./matchesSpecs";
 import { GenerateOptions } from "./GenerateOptions";
 import { $throw, assign, mutate } from "vovas-utils";
 import _ from "lodash";
 
-export const generate = async < O extends PropertySpecs<string>, I extends Inputs<string> >(
+export const defaultMeta = new GenerateMeta();
+
+export const generate = async < O extends Specs<string>, I extends Inputs<string> >(
   outputSpecs: O,
   inputs?: I,
   options?: GenerateOptions<O, I>
-): Promise<Outputs<O> | undefined> => {
+): Promise<GenerateOutput<O> | undefined> => {
   
-  const { openaiApiKey, examples, description, meta, ...openaiOptions } = options ?? {};
+  const { openaiApiKey, examples, description, meta = defaultMeta, ...openaiOptions } = options ?? {};
 
   const openai = new OpenAIApi(new Configuration({ apiKey:
     options?.openaiApiKey ??
@@ -26,22 +29,27 @@ export const generate = async < O extends PropertySpecs<string>, I extends Input
 
   console.log({ messages });
 
-  const { data: { choices: [{ message }] }} = await openai.createChatCompletion({
+  const requestData = {
     model: 'gpt-3.5-turbo',
     ...openaiOptions,
     messages
-  });
+  };
 
-  const rawContent = message?.content;
-  meta && assign(meta, { rawContent });
+  const response = await openai.createChatCompletion(requestData);
+
+  const { data: { choices: [{ message }] }} = response;
+
+  const { content } = message ?? {};
+
+  mutate(meta, { api: { requestData, response } });
 
   try {
     const result = _.mapKeys(
-      yaml.load(rawContent ?? '') as any,
+      yaml.load(content ?? '') as any,
       (__, key) => _.camelCase(key)
     );
     if ( matchesSpecs(result, outputSpecs) ) {
-      return result;
+      return modelToGenerateOutput(result, outputSpecs);
     }
   } catch ( error ) {
     return error instanceof YAMLException
@@ -51,7 +59,7 @@ export const generate = async < O extends PropertySpecs<string>, I extends Input
 
 };
 
-export const generateOrThrow = < O extends PropertySpecs<string>, I extends Inputs<string> >(
+export const generateOrThrow = < O extends Specs<string>, I extends Inputs<string> >(
   ...args: Parameters<typeof generate<O, I>>
 ) => generate<O, I>(...args).then(result =>
   result ?? $throw('Failed to generate output')
