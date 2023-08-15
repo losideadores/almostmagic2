@@ -4,10 +4,10 @@ import { Configuration, OpenAIApi } from "openai";
 import { $throw, mutate } from "vovas-utils";
 import { GenerateMeta } from "./GenerateMeta";
 import { GenerateOptions } from "./GenerateOptions";
-import { GenerateOutput, Specs, modelToGenerateOutput } from "./Specs";
+import { GenerateOutput, Specs, modelToGenerateOutput } from "./types/Specs";
 import { composeChatPrompt } from "./composeChatPrompt";
 import { matchesSpecs } from "./matchesSpecs";
-import { Inputs } from "./types";
+import { Inputs } from "./types/Inputs";
 
 export const defaultMeta = new GenerateMeta();
 
@@ -44,14 +44,13 @@ export const generate = async < O extends Specs, I extends Inputs >(
   mutate(meta, { api: { requestData, response } });
 
   try {
-    const result = _.mapKeys(
-      yaml.load(content ?? '') as any,
-      (__, key) => _.camelCase(key)
-    );
+    const result = yaml.load(content ?? '');
     if ( matchesSpecs(result, outputSpecs) ) {
       return modelToGenerateOutput(result, outputSpecs);
     }
   } catch ( error ) {
+    console.log(content);
+    console.error(error);
     return error instanceof YAMLException
       ? undefined
       : Promise.reject(error);

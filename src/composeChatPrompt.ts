@@ -1,8 +1,8 @@
 import yaml from "js-yaml";
 import _ from "lodash";
 import { chat } from "./chatMessage";
-import { Inputs } from "./types";
-import { Specs } from "./Specs";
+import { Inputs } from "./types/Inputs";
+import { Specs } from "./types/Specs";
 import { GenerateOptions } from "./GenerateOptions";
 
 const sentenceCase = (str: string) => _.upperFirst(_.toLower(_.startCase(str)));
@@ -57,7 +57,7 @@ export const composeChatPrompt = < O extends Specs, I extends Inputs >(
           chat.user(`What the user provides:\n${serialize(inputs ?? randomSeed(), true)}`),
           chat.system(`Come up with an output based on the input provided by the user as a YAML object with the following keys: ${
             outputKeys.map(envelope('`')).join(', ')
-          }. Do not include any additional text, keys, or formatting.`),
+          }. Provide just the YAML object, without any enclosing text or formatting. Do NOT separate the keys with double newlines.`)
         ]
     )
   ];

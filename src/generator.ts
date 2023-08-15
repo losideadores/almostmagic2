@@ -1,7 +1,7 @@
 import { GenerateOptions } from "./GenerateOptions";
 import { generate } from "./generate";
-import { Inputs } from "./types";
-import { Specs } from "./Specs";
+import { Inputs } from "./types/Inputs";
+import { Specs } from "./types/Specs";
 
 export type GeneratorConfig<O extends Specs, I extends Inputs> =
   GenerateOptions<O, I> & {
