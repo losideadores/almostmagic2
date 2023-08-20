@@ -1,37 +1,186 @@
+import * as vovas_utils from 'vovas-utils';
+import { Jsonable } from 'vovas-utils';
 import * as openai from 'openai';
-import { CreateChatCompletionRequest, ChatCompletionRequestMessageRoleEnum, ChatCompletionRequestMessage } from 'openai';
+import { OpenAIApi, CreateChatCompletionRequest, ChatCompletionRequestMessageRoleEnum, ChatCompletionRequestMessage } from 'openai';
 
-type JsonPrimitive = string | number | boolean | null;
-type Outputs<Keys extends string> = Keys | Keys[] | Record<Keys, string>;
-type Inputs<Keys extends string> = Record<Keys, string>;
-declare class GenerateMeta {
-    rawContent?: string;
+type Inputs = Record<string, string | number | boolean | null | string[] | number[]> | string;
+
+type MatchingOutput<S extends Specs> = S extends string ? MatchesSpecValue<S> extends never ? string : MatchesSpecValue<S> : S extends readonly string[] ? {
+    [K in S[number]]: MatchesSpecKey<K> extends never ? string : MatchesSpecKey<K>;
+} : S extends Record<string, string> ? {
+    [K in keyof S]: InferTypeFromSpecEntry<S, K>;
+} : never;
+type MatchingOutputTypeKeys<S extends Specs> = SpecTypeKeys<MatchingOutput<S>>;
+declare const matchingOutputTypeKeys: <S extends Specs>(specs: S) => MatchingOutputTypeKeys<S>;
+
+type MatchingSpecs<Output extends SpecType | Record<string, SpecType>> = Output extends SpecType ? TemplateSuffix<Output> : {
+    [K in keyof Output]: TemplateSuffix<Output[K]>;
+};
+declare const matchingSpecs: <Output extends SpecType | Record<string, SpecType>>(output: Output) => MatchingSpecs<Output>;
+
+type SpecTypes = {
+    number: number;
+    boolean: boolean;
+    'number[]': number[];
+    'string[]': string[];
+    string: string;
+};
+type SpecType = SpecTypes[keyof SpecTypes];
+type SpecTypeKey<T extends SpecType = SpecType> = {
+    [P in keyof SpecTypes]: SpecTypes[P] extends T ? P : never;
+}[keyof SpecTypes];
+declare const specTypeKey: (value: SpecType) => SpecTypeKey<SpecType>;
+type SpecTypeOrKey<T extends SpecType, What extends 'type' | 'key'> = What extends 'type' ? T : SpecTypeKey<T>;
+type SpecTypeKeysObject<T extends SpecType | Record<string, SpecType>> = T extends Record<string, SpecType> ? {
+    [K in keyof T]: SpecTypeKey<T[K]>;
+} : never;
+type SpecTypeKeysSingle<T extends SpecType | Record<string, SpecType>> = T extends SpecType ? SpecTypeKey<T> : never;
+type SpecTypeKeys<T extends SpecType | Record<string, SpecType>> = SpecTypeKeysObject<T> | SpecTypeKeysSingle<T>;
+declare const specTypeKeysIsObject: <T extends SpecType | Record<string, SpecType>>(value: SpecTypeKeysObject<T> | SpecTypeKeysSingle<T>) => value is SpecTypeKeysObject<T>;
+
+type Specs = string | readonly string[] | Record<string, string>;
+type EPSTemplate = readonly [string | null, string | null, string | null];
+type MatchesTemplate<T extends EPSTemplate> = (T[0] extends string ? T[0] : never) | (T[1] extends string ? `${T[1]}${string}` : never) | (T[2] extends string ? `${string}${T[2]}` : never);
+declare const specValueTemplates: {
+    readonly number: readonly ["number", null, "(number)"];
+    readonly boolean: readonly ["boolean", "true if ", "(boolean)"];
+    readonly 'number[]': readonly [null, "array of numbers", "(array of numbers)"];
+    readonly 'string[]': readonly [null, "array of strings", "(array of strings)"];
+    readonly string: readonly [null, "string", "(string)"];
+};
+type TemplateFor<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>];
+type TemplateExactMatch<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][0];
+type TemplatePrefix<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][1];
+type TemplateSuffix<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][2];
+declare const templateFor: <T extends SpecType>(value: T) => TemplateFor<T>;
+declare const templateExactMatch: <T extends SpecType>(value: T) => TemplateExactMatch<T>;
+declare const templatePrefix: <T extends SpecType>(value: T) => TemplatePrefix<T>;
+declare const templateSuffix: <T extends SpecType>(value: T) => TemplateSuffix<T>;
+declare const specKeyTemplates: {
+    readonly boolean: readonly [null, "is", "Boolean"];
+    readonly 'string[]': readonly [null, null, "Array"];
+    readonly string: readonly [null, null, "String"];
+};
+type EPSTemplates<T extends Record<string, EPSTemplate>> = {
+    [K in keyof T]: T[K];
+};
+type SpecValueTemplates = EPSTemplates<typeof specValueTemplates>;
+type SpecKeyTemplates = EPSTemplates<typeof specKeyTemplates>;
+type MatchesSpecKey<K extends string> = {
+    [P in keyof SpecKeyTemplates]: K extends MatchesTemplate<SpecKeyTemplates[P]> ? SpecTypes[P] : never;
+}[keyof SpecKeyTemplates];
+type MatchesSpecValue<V extends string> = {
+    [P in keyof SpecValueTemplates]: Lowercase<V> extends MatchesTemplate<SpecValueTemplates[P]> ? SpecTypes[P] : never;
+}[keyof SpecValueTemplates];
+type InferTypeFromSpecEntry<O extends Record<string, string>, K extends keyof O> = K extends string ? MatchesSpecKey<K> extends never ? MatchesSpecValue<O[K]> extends never ? string : MatchesSpecValue<O[K]> : MatchesSpecKey<K> : never;
+
+declare const isNotSameType: <T extends SpecTypeKey>(value: Jsonable, type: T) => value is Exclude<vovas_utils.JsonableObject, SpecTypes[T]> | Exclude<undefined, SpecTypes[T]> | Exclude<null, SpecTypes[T]> | Exclude<string, SpecTypes[T]> | Exclude<number, SpecTypes[T]> | Exclude<false, SpecTypes[T]> | Exclude<true, SpecTypes[T]> | Exclude<Jsonable[], SpecTypes[T]>;
+declare function makeOutputMatchSpecs<S extends Specs>(output: any, specs: S): MatchingOutput<S>;
+
+/**
+ * Tries to convert a value to a given type.
+ *
+ * @param value - The value to convert.
+ * @param type - The type to convert the value to, expressed as a string from the `SpecTypes` type.
+ * @returns The converted value, or undefined if the conversion failed.
+ *
+ * Note: We can convert most values to strings, and strings to most other types.
+ * Apart from that, we return undefined as we don’t want to make any assumptions.
+ */
+declare const tryConvert: <T extends keyof SpecTypes>(value: Exclude<vovas_utils.JsonableObject, SpecTypes[T]> | Exclude<undefined, SpecTypes[T]> | Exclude<null, SpecTypes[T]> | Exclude<string, SpecTypes[T]> | Exclude<number, SpecTypes[T]> | Exclude<false, SpecTypes[T]> | Exclude<true, SpecTypes[T]> | Exclude<Jsonable[], SpecTypes[T]>, type: T) => SpecTypes[T] | undefined;
+
+declare const typeOf: (value: any) => keyof SpecTypes | undefined;
+
+declare const matchesTemplate: <T extends EPSTemplate>(str: string, [exact, prefix, suffix]: T) => str is MatchesTemplate<T>;
+declare const typeBasedOnSpecValue: (specValue: string) => SpecType | undefined;
+declare const typeBasedOnSpecKey: (specKey: string) => SpecType | undefined;
+declare const typeBasedOnSpecEntry: <S extends Record<string, string>>(spec: S, key: keyof S) => SpecType | undefined;
+
+type GenerateExceptionType = 'noOutput' | 'outputNotJsonable' | 'outputNotJsonableObject' | 'specMismatch' | 'yamlError';
+declare class GenerateException<T extends GenerateExceptionType> extends Error {
+    readonly code: T;
+    readonly meta?: any;
+    constructor(code: T, meta?: any);
+}
+declare class SpecMismatchException<S extends Specs, HasKey extends boolean, K extends HasKey extends true ? Extract<keyof SpecTypeKeysObject<MatchingOutput<S>>, string> : undefined, T extends Jsonable> extends GenerateException<'specMismatch'> {
+    specs: S;
+    key: K;
+    expectedType: HasKey extends true ? SpecTypeKeysObject<MatchingOutput<S>>[Extract<keyof SpecTypeKeysObject<MatchingOutput<S>>, string>] : SpecTypeKeysSingle<MatchingOutput<S>>;
+    actualValue: T;
+    constructor(specs: S, key: K, expectedType: HasKey extends true ? SpecTypeKeysObject<MatchingOutput<S>>[Extract<keyof SpecTypeKeysObject<MatchingOutput<S>>, string>] : SpecTypeKeysSingle<MatchingOutput<S>>, actualValue: T);
 }
 
-type GenerateOptions<T extends string | never = never> = Partial<Pick<CreateChatCompletionRequest, 'model' | 'temperature' | 'top_p' | 'max_tokens' | 'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'>> & {
+type ChatCompletionMethod = OpenAIApi["createCompletion"];
+declare class GenerateMeta {
+    api?: {
+        requestData?: Parameters<ChatCompletionMethod>[0];
+        response?: Awaited<ReturnType<ChatCompletionMethod>>;
+    };
+    error?: GenerateException<GenerateExceptionType>;
+}
+
+type GenerateOptions<O extends Specs, I extends Inputs> = Partial<Pick<CreateChatCompletionRequest, 'model' | 'temperature' | 'top_p' | 'max_tokens' | 'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'>> & {
     openaiApiKey?: string;
     meta?: GenerateMeta;
     description?: string;
-    examples?: T extends string ? Record<T, string>[] : never;
+    debug?: boolean;
+    examples?: ((I extends string ? {
+        input: I;
+    } : I) & (MatchingOutput<O> extends string ? {
+        output: MatchingOutput<O>;
+    } : MatchingOutput<O>))[];
+    throwOnFailure?: boolean;
+    postProcess?: (output: MatchingOutput<O>) => MatchingOutput<O>;
 };
 
 declare const chatMessage: (role: ChatCompletionRequestMessageRoleEnum, content: string) => ChatCompletionRequestMessage;
 declare const chat: Record<ChatCompletionRequestMessageRoleEnum, (content: string) => ChatCompletionRequestMessage>;
 
-declare const composeChatPrompt: <O extends string, I extends string>(outputs: Outputs<O>, inputs: Inputs<I>, { description, examples }?: Partial<GenerateOptions<O | I>>) => openai.ChatCompletionRequestMessage[];
+declare const serialize: (obj: any, sentencify: boolean) => string;
+declare const composeChatPrompt: <O extends Specs, I extends Inputs>(outputs: O, inputs?: I | undefined, { description, examples }?: GenerateOptions<O, I>) => openai.ChatCompletionRequestMessage[];
 
-declare const getPostalCode: (city: string) => Promise<Record<"postalCode", JsonPrimitive> | undefined>;
-
-declare const generate: <O extends string, I extends string>(outputs: Outputs<O>, inputs: Inputs<I>, options?: GenerateOptions<O | I> | undefined) => Promise<Record<O, JsonPrimitive> | undefined>;
-declare const generateOrThrow: <O extends string, I extends string>(outputs: Outputs<O>, inputs: Inputs<I>, options?: GenerateOptions<O | I> | undefined) => Promise<Record<O, JsonPrimitive>>;
-
-type MagicConfig<O extends string, I extends string> = GenerateOptions<O | I> & {
-    outputs: Outputs<O>;
+declare const prelimSpecs: {
+    readonly title: "string";
+    readonly intro: "string";
+    readonly outline: "array of strings, to be further expanded into sections";
 };
-declare class Magic<O extends string, I extends string> {
-    config: MagicConfig<O, I>;
-    constructor(config: MagicConfig<O, I>);
-    generateFor(inputs: Inputs<I>): Promise<Record<O, JsonPrimitive> | undefined>;
+type Prelims = MatchingOutput<typeof prelimSpecs>;
+declare const generatePrelims: (topic: string) => Promise<{
+    readonly title: string;
+    readonly intro: string;
+    readonly outline: string[];
+} | undefined>;
+
+declare const getPostalCode: (location: string) => Promise<string | undefined>;
+declare const randomAddressLine: (location?: string) => Promise<string | undefined>;
+declare const babyNameIdeas: (request?: string) => Promise<string[] | undefined>;
+declare const businessIdeas: (request?: string) => Promise<string[] | undefined>;
+declare const swotAnalysis: (idea: string) => Promise<{
+    strengths: string;
+    weaknesses: string;
+    opportunities: string;
+    threats: string;
+} | undefined>;
+
+declare const languages: readonly ["en", "fr", "de", "es", "it", "pt", "ru", "ja", "ko", "zh", "ar", "hi", "bn", "pa", "te", "mr", "ta", "ur", "gu", "kn", "ml", "sd", "or", "as", "bh", "ks", "ne", "si", "sa", "my", "km", "lo", "th", "lo", "vi", "id", "ms", "tl", "jv", "su", "tl", "ceb", "ny", "ha", "yo", "ig", "yo", "zu", "xh", "st", "tn", "sn", "so", "rw", "rn", "ny", "lg", "sw", "mg", "eo", "cy", "eu", "gl", "ca", "ast", "eu", "qu", "ay", "gn", "tt", "ug", "dz", "bo", "ii", "chr", "iu", "oj", "cr", "km", "mn", "yi", "he", "yi", "ur", "ar", "fa", "ps", "ks", "sd"];
+type Language = (typeof languages)[number];
+declare const translate: <T extends ("en" | "fr" | "de" | "es" | "it" | "pt" | "ru" | "ja" | "ko" | "zh" | "ar" | "hi" | "bn" | "pa" | "te" | "mr" | "ta" | "ur" | "gu" | "kn" | "ml" | "sd" | "or" | "as" | "bh" | "ks" | "ne" | "si" | "sa" | "my" | "km" | "lo" | "th" | "vi" | "id" | "ms" | "tl" | "jv" | "su" | "ceb" | "ny" | "ha" | "yo" | "ig" | "zu" | "xh" | "st" | "tn" | "sn" | "so" | "rw" | "rn" | "lg" | "sw" | "mg" | "eo" | "cy" | "eu" | "gl" | "ca" | "ast" | "qu" | "ay" | "gn" | "tt" | "ug" | "dz" | "bo" | "ii" | "chr" | "iu" | "oj" | "cr" | "mn" | "yi" | "he" | "fa" | "ps")[]>(text: string, ...toLanguages: T) => Promise<MatchingOutput<T> | undefined>;
+
+declare const defaultMeta: GenerateMeta;
+declare function generate<O extends Specs, I extends Inputs>(outputSpecs: O, inputs?: I, options?: GenerateOptions<O, I>): Promise<MatchingOutput<O> | undefined>;
+
+type GeneratorConfig<O extends Specs, I extends Inputs> = GenerateOptions<O, I> & {
+    outputSpecs: O;
+};
+declare class Generator<O extends Specs, I extends Inputs> {
+    config: GeneratorConfig<O, I>;
+    constructor(config: GeneratorConfig<O, I>);
+    generateFor(inputs: I): Promise<MatchingOutput<O> | undefined>;
 }
 
-export { GenerateMeta, GenerateOptions, Inputs, JsonPrimitive, Magic, MagicConfig, Outputs, chat, chatMessage, composeChatPrompt, generate, generateOrThrow, getPostalCode };
+declare const improve: <O extends SpecType | Record<string, SpecType>>(output: O, requestToImprove: string, options: GenerateOptions<MatchingSpecs<O>, {
+    current: string;
+    requestToImprove: string;
+}>) => Promise<MatchingOutput<MatchingSpecs<O>> | undefined>;
+
+export { ChatCompletionMethod, EPSTemplate, EPSTemplates, GenerateException, GenerateExceptionType, GenerateMeta, GenerateOptions, Generator, GeneratorConfig, InferTypeFromSpecEntry, Inputs, Language, MatchesSpecKey, MatchesSpecValue, MatchesTemplate, MatchingOutput, MatchingOutputTypeKeys, MatchingSpecs, Prelims, SpecKeyTemplates, SpecMismatchException, SpecType, SpecTypeKey, SpecTypeKeys, SpecTypeKeysObject, SpecTypeKeysSingle, SpecTypeOrKey, SpecTypes, SpecValueTemplates, Specs, TemplateExactMatch, TemplateFor, TemplatePrefix, TemplateSuffix, babyNameIdeas, businessIdeas, chat, chatMessage, composeChatPrompt, defaultMeta, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, makeOutputMatchSpecs, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsObject, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, typeOf };
