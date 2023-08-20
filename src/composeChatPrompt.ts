@@ -1,13 +1,13 @@
 import yaml from "js-yaml";
 import _ from "lodash";
 import { chat } from "./chatMessage";
-import { Inputs } from "./types/Inputs";
-import { Specs } from "./types/Specs";
+import { Inputs } from "./specs/Inputs";
+import { Specs } from "./specs/Specs";
 import { GenerateOptions } from "./GenerateOptions";
 
 const sentenceCase = (str: string) => _.upperFirst(_.toLower(_.startCase(str)));
 
-const serialize = (obj: any, sentencify: boolean ) => yaml.dump(
+export const serialize = (obj: any, sentencify: boolean ) => yaml.dump(
   sentencify
     ? Array.isArray(obj)
       ? obj.map(sentenceCase)
@@ -21,7 +21,7 @@ const envelope = (char: string) => (str: string) => `${char}${str}${char}`;
 
 export const composeChatPrompt = < O extends Specs, I extends Inputs >(
   outputs: O,
-  inputs?: I | undefined,
+  inputs?: I,
   { description, examples }: GenerateOptions<O, I> = {}
 ) => {
 
@@ -29,7 +29,7 @@ export const composeChatPrompt = < O extends Specs, I extends Inputs >(
     Array.isArray(outputs)
       ? outputs
       : typeof outputs === "string"
-        ? [outputs]
+        ? ['output']
         : Object.keys(outputs)
   );
 
@@ -54,10 +54,18 @@ export const composeChatPrompt = < O extends Specs, I extends Inputs >(
             chat.user(serialize(inputs ?? randomSeed(), false)),
           ]
         : [
-          chat.user(`What the user provides:\n${serialize(inputs ?? randomSeed(), true)}`),
-          chat.system(`Come up with an output based on the input provided by the user as a YAML object with the following keys: ${
+          chat.user(`What the user provides:\n${serialize(
+            inputs 
+              ? typeof inputs === "string"
+                ? { input: inputs }
+                : inputs
+              : randomSeed(), true)}`),
+          // chat.system(`Come up with an output based on the input provided by the user as a YAML object with the following keys: ${
+          //   outputKeys.map(envelope('`')).join(', ')
+          // }. Provide just the YAML object, without any enclosing text or formatting. Do not forget to enclose any strings containing colons in quotes (per YAML syntax).`),
+          chat.system(`Come up with an output based on the input provided by the user as a JSON object with the following keys: ${
             outputKeys.map(envelope('`')).join(', ')
-          }. Provide just the YAML object, without any enclosing text or formatting. Do NOT separate the keys with double newlines.`)
+          }. Provide just the JSON object, without any indents, enclosing text or formatting.`),
         ]
     )
   ];

@@ -1,7 +1,8 @@
 import { CreateChatCompletionRequest } from "openai";
-import { Inputs } from "./types/Inputs";
+import { Inputs } from "./specs/Inputs";
 import { GenerateMeta } from "./GenerateMeta";
-import { Specs, ExpectedModelOutput } from "./types/Specs";
+import { Specs } from "./specs/Specs";
+import { MatchingOutput } from "./specs/MatchingOutput";
 
 export type GenerateOptions<
   O extends Specs,
@@ -12,7 +13,20 @@ export type GenerateOptions<
   openaiApiKey?: string;
   meta?: GenerateMeta;
   description?: string;
+  debug?: boolean;
   examples?: (
-    ExpectedModelOutput<O> & I
+    (
+      I extends string
+        ? { input: I }
+        : I
+    )
+    &
+    (
+      MatchingOutput<O> extends string
+        ? { output: MatchingOutput<O> }
+        : MatchingOutput<O>
+    )
   )[];
+  throwOnFailure?: boolean;
+  postProcess?: ( output: MatchingOutput<O> ) => MatchingOutput<O>;
 };
