@@ -1,6 +1,6 @@
 {
   "name": "almostmagic2",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "almostmagic rewritten from scratch as a 100% client-side, OpenAI chat API-based package",
   "exports": {
     ".": {
