@@ -1,11 +1,11 @@
 import { SpecType, SpecTypeKey, SpecTypes, specTypeKey } from ".";
 
 /**
- * The desired output of the `generate` function.
+ * The desired output of the {@link generate} function.
  * Can be a simple string, a (readonly) array of strings, or a string-to-string record.
- * - If simple string, `generate` will return a single value of the type inferred according to `specValueTemplates`.
- * - If array of strings, `generate` will return a record with the same keys as the array, and values inferred according to `specKeyTemplates`.
- * - If string-to-string record, `generate` will return a record with the same keys as the record, and values inferred according to both `specKeyTemplates` and `specValueTemplates`, the former taking precedence.
+ * - If simple string, {@link generate} will return a single value of the type inferred according to {@link specValueTemplates}.
+ * - If array of strings, {@link generate} will return a record with the same keys as the array, and values inferred according to {@link specKeyTemplates}.
+ * - If string-to-string record, {@link generate} will return a record with the same keys as the record, and values inferred according to both {@link specKeyTemplates} and {@link specValueTemplates}, the former taking precedence.
  */
 export type Specs = string | readonly string[] | Record<string, string>;
 
@@ -18,7 +18,7 @@ export type Specs = string | readonly string[] | Record<string, string>;
 export type EPSTemplate = readonly [string | null, string | null, string | null];
 
 /**
- * Type used to match a `Specs` item against an `EPSTemplate`.
+ * Type used to match a {@link Specs} item against an {@link EPSTemplate}.
  */
 export type MatchesTemplate<T extends EPSTemplate> =
   ( T[0] extends string ? T[0] : never )
@@ -29,13 +29,13 @@ type TestMatchesTemplate = MatchesTemplate<['boolean', 'true if ', '(boolean)']>
 // expected: "boolean" | `true if ${string}` | `${string}(boolean)`
 
 /**
- * Actual templates used to match `Specs` item values (i.e. descriptions).
- * - If the description is exactly "number" or ends with "(number)", the type will be inferred as `number`.
- * - If the description is exactly "boolean" or starts with "true if " or ends with "(boolean)", the type will be inferred as `boolean`.
+ * Actual templates used to match {@link Specs} item values (i.e. descriptions).
+ * - If the description is exactly "number" or ends with "(number)", the type will be inferred as {@link number}.
+ * - If the description is exactly "boolean" or starts with "true if " or ends with "(boolean)", the type will be inferred as {@link boolean}.
  * - If the description starts with "array of numbers" or ends with "(array of numbers)", the type will be inferred as `number[]`.
  * - If the description is exactly "array of strings" or starts with "list of" or ends with "(array of strings)", the type will be inferred as `string[]`.
- * - If the description is exactly "string" or ends with "(string)", the type will be inferred as `string`.
- * - Otherwise, the type will be inferred as `string`.
+ * - If the description is exactly "string" or ends with "(string)", the type will be inferred as {@link string}.
+ * - Otherwise, the type will be inferred as {@link string}.
  */
 export const specValueTemplates = {
   number: ['number', null, '(number)'],
@@ -47,49 +47,49 @@ export const specValueTemplates = {
 } as const;
 
 /**
- * Type inferred from `specValueTemplates`, for compile-time type safety.
+ * Type inferred from {@link specValueTemplates}, for compile-time type safety.
  */
 export type SpecValueTemplates = typeof specValueTemplates;
 
 /**
- * Infers the `EPSTemplate` to use for a given `SpecType`.
+ * Infers the {@link EPSTemplate} to use for a given {@link SpecType}.
  */
 export type TemplateFor<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>];
 
 type TestTemplateFor = TemplateFor<number[]>; // expected: [null, "array of numbers", "(array of numbers)"]
 
 /**
- * Infers the exact match part of the `EPSTemplate` to use for a given `SpecType`.
+ * Infers the exact match part of the {@link EPSTemplate} to use for a given {@link SpecType}.
  */
 export type TemplateExactMatch<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][0];
 
 /**
- * Infers the prefix part of the `EPSTemplate` to use for a given `SpecType`.
+ * Infers the prefix part of the {@link EPSTemplate} to use for a given {@link SpecType}.
  */
 export type TemplatePrefix<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][1];
 
 /**
- * Infers the suffix part of the `EPSTemplate` to use for a given `SpecType`.
+ * Infers the suffix part of the {@link EPSTemplate} to use for a given {@link SpecType}.
  */
 export type TemplateSuffix<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][2];
 
 /**
- * Infers the `specValueTemplates` entry to use for a given value (of a supported type).
+ * Infers the {@link specValueTemplates} entry to use for a given value (of a supported type).
  */
 export const templateFor = <T extends SpecType>(value: T) => specValueTemplates[specTypeKey(value)] as TemplateFor<T>;
 
 /**
- * Infers the exact match part of the `specValueTemplates` entry to use for a given value (of a supported type).
+ * Infers the exact match part of the {@link specValueTemplates} entry to use for a given value (of a supported type).
  */
 export const templateExactMatch = <T extends SpecType>(value: T) => templateFor(value)[0] as TemplateExactMatch<T>;
 
 /**
- * Infers the prefix part of the `specValueTemplates` entry to use for a given value (of a supported type).
+ * Infers the prefix part of the {@link specValueTemplates} entry to use for a given value (of a supported type).
  */
 export const templatePrefix = <T extends SpecType>(value: T) => templateFor(value)[1] as TemplatePrefix<T>;
 
 /**
- * Infers the suffix part of the `specValueTemplates` entry to use for a given value (of a supported type).
+ * Infers the suffix part of the {@link specValueTemplates} entry to use for a given value (of a supported type).
  */
 export const templateSuffix = <T extends SpecType>(value: T) => templateFor(value)[2] as TemplateSuffix<T>;
 
@@ -98,28 +98,29 @@ type TestTemplatePrefix = TemplatePrefix<boolean>; // expected: "true if "
 type TestTemplateSuffix = TemplateSuffix<string[]>; // expected: "(array of strings)"
 
 /**
- * Actual templates used to match `Specs` item keys.
- * - If the key starts with "is" or ends with "Boolean", the type will be inferred as `boolean`.
+ * Actual templates used to match {@link Specs} item keys.
+ * - If the key starts with "is" or ends with "Boolean", the type will be inferred as {@link boolean}.
  *   NOTE: This will also be triggered on "normal" words starting with "is", e.g. "island", so avoid such words.
  * - If the key ends with "Array", the type will be inferred as `string[]`.
- * - If the key ends with "String", the type will be inferred as `string`.
- * - Otherwise, the type will be inferred as `string` or according to `specValueTemplates`, where applicable.
+ * - If the key ends with "String", the type will be inferred as {@link string}.
+ * - Otherwise, the type will be inferred as {@link string} or according to {@link specValueTemplates}, where applicable.
  */
 export const specKeyTemplates = {
   boolean: [null, 'is', 'Boolean'],
   // Note: This will also be triggered on "normal" words starting with "is", e.g. "island".
   // TODO: Think of a different way to do this (require an underscore prefix, i.e. "is_paid" instead of "isPaid"?)
+  // TODO: Make values take precedence over keys to override this by explicitly specifying a type in the description (e.g. { island: 'string' }})
   'string[]': [null, null, 'Array'],
   string: [null, null, 'String'],
 } as const;
 
 /**
- * Type inferred from `specKeyTemplates`, for compile-time type safety.
+ * Type inferred from {@link specKeyTemplates}, for compile-time type safety.
  */
 export type SpecKeyTemplates = typeof specKeyTemplates;
 
 /**
- * Infers the `SpecType` to use for a given `Specs` item key.
+ * Infers the {@link SpecType} to use for a given {@link Specs} item key.
  */
 export type InferTypeFromKey<K extends string> = {
   [P in keyof SpecKeyTemplates]: K extends MatchesTemplate<SpecKeyTemplates[P]> ? SpecTypes[P] : never;
@@ -130,7 +131,7 @@ type TestInferTypeFromKey2 = InferTypeFromKey<'notesArray'>; // expected: string
 type TestInferTypeFromKey3 = InferTypeFromKey<'groceries'>; // expected: never
 
 /**
- * Infers the `SpecType` to use for a given `Specs` item value (i.e. description).
+ * Infers the {@link SpecType} to use for a given {@link Specs} item value (i.e. description).
  */
 export type InferTypeFromValue<V extends string> = {
   [P in keyof SpecValueTemplates]: Lowercase<V> extends MatchesTemplate<SpecValueTemplates[P]> ? SpecTypes[P] : never;
@@ -143,7 +144,7 @@ type TestInferTypeFromValue3 = InferTypeFromValue<'array of numbers'>; // expect
 type TestInferTypeFromValue4 = InferTypeFromValue<'list of items to buy'>; // expected: string[]
 
 /**
- * Infers the `SpecType` to use for a given key-value pair in a record-based `Specs` item.
+ * Infers the {@link SpecType} to use for a given key-value pair in a record-based {@link Specs} item.
  */
 export type InferTypeFromSpecEntry<O extends Record<string, string>, K extends keyof O> =
   K extends string
