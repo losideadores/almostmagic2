@@ -3,7 +3,7 @@ export * from './MatchingOutput';
 export * from './MatchingSpecs';
 export * from './SpecTypes';
 export * from './Specs';
-export * from './outputMatchesSpecs';
+export * from './castToSpecs';
 export * from './tryConvert';
 export * from './typeOf';
 export * from './utils';

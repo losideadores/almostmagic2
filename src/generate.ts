@@ -7,7 +7,7 @@ import { GenerateOptions, GenerateOptionsBase } from "./GenerateOptions";
 import { composeChatPrompt } from "./composeChatPrompt";
 import { Inputs } from "./specs/Inputs";
 import { Specs } from "./specs/Specs";
-import { makeOutputMatchSpecs } from "./specs/outputMatchesSpecs";
+import { castToSpecs } from "./specs/castToSpecs";
 import { MatchingOutput } from "./specs";
 
 export const defaultMeta = new GenerateMeta();
@@ -72,7 +72,7 @@ export async function generate<O extends Specs, I extends Inputs>(
     let result = JSON.parse(content ?? $throw(new GenerateException('noOutput')));
     if ( typeof outputSpecs === 'string' ) 
       result = result['output'];
-    let matchingResult = makeOutputMatchSpecs(result, outputSpecs);
+    let matchingResult = castToSpecs(result, outputSpecs);
     if ( postProcess )
       matchingResult = postProcess(matchingResult);
     return matchingResult;

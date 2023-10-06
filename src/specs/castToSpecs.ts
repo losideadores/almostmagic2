@@ -2,11 +2,24 @@ import { Jsonable, is } from "vovas-utils";
 import { MatchingOutput, SpecTypeName, SpecTypes, Specs, matchingOutputTypeKeys, specTypeKeysIsDict, tryConvert, typeOf } from ".";
 import { GenerateException, SpecMismatchException } from "..";
 
-export const isNotSameType = <T extends SpecTypeName>(value: Jsonable, type: T): value is Exclude<Jsonable, SpecTypes[T]> =>
-  typeOf(value) !== type;
+/**
+ * A typeguard that checks if a {@link Jsonable} value is *not* of a given type, as represented by its {@link SpecTypeName}.
+ * 
+ * @param value - The value to check.
+ * @param type - The type to check against.
+ */
+export function isNotSameType<T extends SpecTypeName>(value: Jsonable, type: T): value is Exclude<Jsonable, SpecTypes[T]> {
+  return typeOf(value) !== type;
+}
 
-
-export function makeOutputMatchSpecs<S extends Specs>(output: any, specs: S) {
+/**
+ * Tries to cast a value to given {@link Specs}, throwing a {@link GenerateException} if the value cannot be cast.
+ * 
+ * @param output - The value to cast.
+ * @param specs - The specs to cast to.
+ * @returns The casted value as a {@link MatchingOutput} for the given {@link Specs}.
+ */
+export function castToSpecs<S extends Specs>(output: any, specs: S): MatchingOutput<S> {
 
   if ( !is.jsonable(output) )
     throw new GenerateException('outputNotJsonable', { output });
