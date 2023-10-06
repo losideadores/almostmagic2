@@ -1,17 +1,17 @@
 import _ from "lodash";
 import { asTypeguard, is } from "vovas-utils";
-import { Specs, MatchesSpecValue, MatchesSpecKey, InferTypeFromSpecEntry, SpecTypeKeys, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, specValueTemplates } from ".";
+import { Specs, InferTypeFromValue, InferTypeFromKey, InferTypeFromSpecEntry, SpecTypeKeys, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, specValueTemplates } from ".";
 
 export type MatchingOutput<S extends Specs> = 
   S extends string 
-    ? MatchesSpecValue<S> extends never
+    ? InferTypeFromValue<S> extends never
       ? string
-      : MatchesSpecValue<S>
+      : InferTypeFromValue<S>
   : S extends readonly string[] 
     ? {
-      [K in S[number]]: MatchesSpecKey<K> extends never
+      [K in S[number]]: InferTypeFromKey<K> extends never
         ? string
-        : MatchesSpecKey<K>;
+        : InferTypeFromKey<K>;
     }
   : S extends Record<string, string> 
     ? {
