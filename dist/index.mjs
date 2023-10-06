@@ -1,7 +1,7 @@
 import yaml, { dump } from 'js-yaml';
 import _ from 'lodash';
-import { ChatCompletionRequestMessageRoleEnum, OpenAIApi, Configuration } from 'openai';
-import { is, check, $throw, shouldNotBe, give, mutate } from 'vovas-utils';
+import OpenAI from 'openai';
+import { asTypeguard, is, $throw, shouldNotBe, check, give, mutate } from 'vovas-utils';
 
 class GenerateException extends Error {
   constructor(code, meta) {
@@ -24,11 +24,12 @@ class SpecMismatchException extends GenerateException {
 class GenerateMeta {
 }
 
+const chatRoles = ["user", "assistant", "system"];
 const chatMessage = (role, content) => ({
   role,
   content
 });
-const chat = _.values(ChatCompletionRequestMessageRoleEnum).reduce((acc, role) => ({
+const chat = chatRoles.reduce((acc, role) => ({
   ...acc,
   [role]: (content) => chatMessage(role, content)
 }), {});
@@ -80,27 +81,24 @@ const randomAddressLine = (location) => generate("Random but plausible address l
 const babyNameIdeas = (request) => generate("Baby name ideas (array of strings)", request);
 const businessIdeas = (request) => generate("Business ideas (array of strings)", request);
 const swotAnalysis = (idea) => generate({
-  strengths: "array",
-  weaknesses: "array",
-  opportunities: "array",
-  threats: "array"
+  strengths: "array of strings",
+  weaknesses: "array of strings",
+  opportunities: "array of strings",
+  threats: "array of strings"
 }, { idea });
 
-const matchingOutputTypeKeys = (specs) => typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : is.array(specs) ? _.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : is.jsonableObject(specs) ? _.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
+const matchingOutputTypeKeys = (specs) => typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : asTypeguard(is.array)(specs) ? _.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : is.jsonableObject(specs) ? _.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
 
 const matchingSpecs = (output) => typeof output === "object" ? _.mapValues(output, (value) => templateSuffix(value) ?? "string") : templateSuffix(output) ?? "string";
 
-const specTypeKey = (value) => check(value).if(is.number, () => "number").if(is.boolean, () => "boolean").if(is.string, () => "string").if(
-  is.array,
-  (items) => items.every(is.number) ? "number[]" : items.every(is.string) ? "string[]" : $throw("Array items must be either all numbers or all strings")
-).else(shouldNotBe);
+const specTypeKey = (value) => is.number(value) ? "number" : is.boolean(value) ? "boolean" : is.string(value) ? "string" : is.array(value) ? _.every(value, is.number) ? "number[]" : _.every(value, is.string) ? "string[]" : $throw("Array items must be either all numbers or all strings") : shouldNotBe(value);
 const specTypeKeysIsObject = (value) => typeof value === "object";
 
 const specValueTemplates = {
   number: ["number", null, "(number)"],
   boolean: ["boolean", "true if ", "(boolean)"],
   "number[]": [null, "array of numbers", "(array of numbers)"],
-  "string[]": [null, "array of strings", "(array of strings)"],
+  "string[]": ["array of strings", "list of", "(array of strings)"],
   // (We had to use "list of" instead of "array of" because then it would work for "array of numbers" as well, as it's not possible to define a TypeScript type that would allow us to distinguish between the two.)
   string: [null, "string", "(string)"]
 };
@@ -117,7 +115,7 @@ const specKeyTemplates = {
 };
 
 const tryConvert = (value, type) => type === "string" ? check(value).if(
-  is.array,
+  asTypeguard(is.array),
   (items) => items.every((item) => typeof item === "number" || typeof item === "string" && /^[^\s]+$/.test(item)) ? items.join(", ") : yaml.dump(items)
 ).if(is.jsonableObject, yaml.dump).else(String) : check(value).if(
   is.string,
@@ -198,6 +196,10 @@ function makeOutputMatchSpecs(output, specs) {
 }
 
 const defaultMeta = new GenerateMeta();
+const defaultOptions = {};
+function addDefaultOptions(options) {
+  Object.assign(defaultOptions, options);
+}
 async function generate(outputSpecs, inputs, options) {
   const {
     openaiApiKey,
@@ -208,10 +210,14 @@ async function generate(outputSpecs, inputs, options) {
     throwOnFailure,
     postProcess,
     ...openaiOptions
-  } = options ?? {};
-  const openai = new OpenAIApi(new Configuration({
-    apiKey: options?.openaiApiKey ?? process.env.OPENAI_API_KEY ?? $throw("OpenAI API key is required either as `options.openaiApiKey` or as `process.env.OPENAI_API_KEY`")
-  }));
+  } = {
+    ...defaultOptions,
+    ...options
+  };
+  const openai = new OpenAI({
+    apiKey: openaiApiKey ?? process.env.OPENAI_API_KEY ?? $throw("OpenAI API key is required either as `options.openaiApiKey` or as `process.env.OPENAI_API_KEY`"),
+    dangerouslyAllowBrowser: true
+  });
   const messages = composeChatPrompt(
     outputSpecs,
     inputs,
@@ -224,8 +230,8 @@ async function generate(outputSpecs, inputs, options) {
     ...openaiOptions,
     messages
   };
-  const response = await openai.createChatCompletion(requestData);
-  const { data: { choices: [{ message }] } } = response;
+  const response = await openai.chat.completions.create(requestData);
+  const { choices: [{ message }] } = response;
   const { content } = message ?? {};
   if (debug)
     console.log(content);
@@ -352,4 +358,4 @@ class Generator {
 
 const improve = (output, requestToImprove, options) => generate(matchingSpecs(output), { current: yaml.dump(output), requestToImprove }, options);
 
-export { GenerateException, GenerateMeta, Generator, SpecMismatchException, babyNameIdeas, businessIdeas, chat, chatMessage, composeChatPrompt, defaultMeta, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, makeOutputMatchSpecs, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsObject, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, typeOf };
+export { GenerateException, GenerateMeta, Generator, SpecMismatchException, addDefaultOptions, babyNameIdeas, businessIdeas, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, makeOutputMatchSpecs, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsObject, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, typeOf };

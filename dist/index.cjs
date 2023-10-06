@@ -2,13 +2,14 @@
 
 const yaml = require('js-yaml');
 const _ = require('lodash');
-const openai = require('openai');
+const OpenAI = require('openai');
 const vovasUtils = require('vovas-utils');
 
 function _interopDefaultCompat (e) { return e && typeof e === 'object' && 'default' in e ? e.default : e; }
 
 const yaml__default = /*#__PURE__*/_interopDefaultCompat(yaml);
 const ___default = /*#__PURE__*/_interopDefaultCompat(_);
+const OpenAI__default = /*#__PURE__*/_interopDefaultCompat(OpenAI);
 
 class GenerateException extends Error {
   constructor(code, meta) {
@@ -31,11 +32,12 @@ class SpecMismatchException extends GenerateException {
 class GenerateMeta {
 }
 
+const chatRoles = ["user", "assistant", "system"];
 const chatMessage = (role, content) => ({
   role,
   content
 });
-const chat = ___default.values(openai.ChatCompletionRequestMessageRoleEnum).reduce((acc, role) => ({
+const chat = chatRoles.reduce((acc, role) => ({
   ...acc,
   [role]: (content) => chatMessage(role, content)
 }), {});
@@ -87,27 +89,24 @@ const randomAddressLine = (location) => generate("Random but plausible address l
 const babyNameIdeas = (request) => generate("Baby name ideas (array of strings)", request);
 const businessIdeas = (request) => generate("Business ideas (array of strings)", request);
 const swotAnalysis = (idea) => generate({
-  strengths: "array",
-  weaknesses: "array",
-  opportunities: "array",
-  threats: "array"
+  strengths: "array of strings",
+  weaknesses: "array of strings",
+  opportunities: "array of strings",
+  threats: "array of strings"
 }, { idea });
 
-const matchingOutputTypeKeys = (specs) => typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : vovasUtils.is.array(specs) ? ___default.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : vovasUtils.is.jsonableObject(specs) ? ___default.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
+const matchingOutputTypeKeys = (specs) => typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : vovasUtils.asTypeguard(vovasUtils.is.array)(specs) ? ___default.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : vovasUtils.is.jsonableObject(specs) ? ___default.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
 
 const matchingSpecs = (output) => typeof output === "object" ? ___default.mapValues(output, (value) => templateSuffix(value) ?? "string") : templateSuffix(output) ?? "string";
 
-const specTypeKey = (value) => vovasUtils.check(value).if(vovasUtils.is.number, () => "number").if(vovasUtils.is.boolean, () => "boolean").if(vovasUtils.is.string, () => "string").if(
-  vovasUtils.is.array,
-  (items) => items.every(vovasUtils.is.number) ? "number[]" : items.every(vovasUtils.is.string) ? "string[]" : vovasUtils.$throw("Array items must be either all numbers or all strings")
-).else(vovasUtils.shouldNotBe);
+const specTypeKey = (value) => vovasUtils.is.number(value) ? "number" : vovasUtils.is.boolean(value) ? "boolean" : vovasUtils.is.string(value) ? "string" : vovasUtils.is.array(value) ? ___default.every(value, vovasUtils.is.number) ? "number[]" : ___default.every(value, vovasUtils.is.string) ? "string[]" : vovasUtils.$throw("Array items must be either all numbers or all strings") : vovasUtils.shouldNotBe(value);
 const specTypeKeysIsObject = (value) => typeof value === "object";
 
 const specValueTemplates = {
   number: ["number", null, "(number)"],
   boolean: ["boolean", "true if ", "(boolean)"],
   "number[]": [null, "array of numbers", "(array of numbers)"],
-  "string[]": [null, "array of strings", "(array of strings)"],
+  "string[]": ["array of strings", "list of", "(array of strings)"],
   // (We had to use "list of" instead of "array of" because then it would work for "array of numbers" as well, as it's not possible to define a TypeScript type that would allow us to distinguish between the two.)
   string: [null, "string", "(string)"]
 };
@@ -124,7 +123,7 @@ const specKeyTemplates = {
 };
 
 const tryConvert = (value, type) => type === "string" ? vovasUtils.check(value).if(
-  vovasUtils.is.array,
+  vovasUtils.asTypeguard(vovasUtils.is.array),
   (items) => items.every((item) => typeof item === "number" || typeof item === "string" && /^[^\s]+$/.test(item)) ? items.join(", ") : yaml__default.dump(items)
 ).if(vovasUtils.is.jsonableObject, yaml__default.dump).else(String) : vovasUtils.check(value).if(
   vovasUtils.is.string,
@@ -205,6 +204,10 @@ function makeOutputMatchSpecs(output, specs) {
 }
 
 const defaultMeta = new GenerateMeta();
+const defaultOptions = {};
+function addDefaultOptions(options) {
+  Object.assign(defaultOptions, options);
+}
 async function generate(outputSpecs, inputs, options) {
   const {
     openaiApiKey,
@@ -215,10 +218,14 @@ async function generate(outputSpecs, inputs, options) {
     throwOnFailure,
     postProcess,
     ...openaiOptions
-  } = options ?? {};
-  const openai$1 = new openai.OpenAIApi(new openai.Configuration({
-    apiKey: options?.openaiApiKey ?? process.env.OPENAI_API_KEY ?? vovasUtils.$throw("OpenAI API key is required either as `options.openaiApiKey` or as `process.env.OPENAI_API_KEY`")
-  }));
+  } = {
+    ...defaultOptions,
+    ...options
+  };
+  const openai = new OpenAI__default({
+    apiKey: openaiApiKey ?? process.env.OPENAI_API_KEY ?? vovasUtils.$throw("OpenAI API key is required either as `options.openaiApiKey` or as `process.env.OPENAI_API_KEY`"),
+    dangerouslyAllowBrowser: true
+  });
   const messages = composeChatPrompt(
     outputSpecs,
     inputs,
@@ -231,8 +238,8 @@ async function generate(outputSpecs, inputs, options) {
     ...openaiOptions,
     messages
   };
-  const response = await openai$1.createChatCompletion(requestData);
-  const { data: { choices: [{ message }] } } = response;
+  const response = await openai.chat.completions.create(requestData);
+  const { choices: [{ message }] } = response;
   const { content } = message ?? {};
   if (debug)
     console.log(content);
@@ -363,12 +370,15 @@ exports.GenerateException = GenerateException;
 exports.GenerateMeta = GenerateMeta;
 exports.Generator = Generator;
 exports.SpecMismatchException = SpecMismatchException;
+exports.addDefaultOptions = addDefaultOptions;
 exports.babyNameIdeas = babyNameIdeas;
 exports.businessIdeas = businessIdeas;
 exports.chat = chat;
 exports.chatMessage = chatMessage;
+exports.chatRoles = chatRoles;
 exports.composeChatPrompt = composeChatPrompt;
 exports.defaultMeta = defaultMeta;
+exports.defaultOptions = defaultOptions;
 exports.generate = generate;
 exports.generatePrelims = generatePrelims;
 exports.getPostalCode = getPostalCode;

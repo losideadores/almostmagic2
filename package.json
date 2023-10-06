@@ -24,7 +24,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.197",
     "@types/node": "^20.4.9",
-    "typescript": "^5.1.6",
+    "typescript": "^5.2.2",
     "unbuild": "^1.2.1"
   },
   "dependencies": {
@@ -33,7 +33,7 @@
     "dotenv": "^16.3.1",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "openai": "^3.3.0",
-    "vovas-utils": "^0.3.8"
+    "openai": "^4.11.1",
+    "vovas-utils": "^0.6.0"
   }
 }

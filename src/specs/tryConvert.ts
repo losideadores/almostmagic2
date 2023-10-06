@@ -1,5 +1,5 @@
 import yaml from "js-yaml";
-import { Jsonable, check, is, $throw, give } from "vovas-utils";
+import { Jsonable, check, is, $throw, give, asTypeguard } from "vovas-utils";
 import { SpecTypes, SpecTypeKey } from ".";
 
 /**
@@ -15,7 +15,7 @@ import { SpecTypes, SpecTypeKey } from ".";
 export const tryConvert = <T extends keyof SpecTypes>(value: Exclude<Jsonable, SpecTypes[T]>, type: T) => (
   type === 'string'
     ? check(value as Jsonable)
-      .if( is.array, items =>
+      .if( asTypeguard<Jsonable[]>(is.array), items =>
         items.every(item => typeof item === 'number' || (typeof item === 'string' && /^[^\s]+$/.test(item)))
           ? items.join(', ')
           : yaml.dump(items)

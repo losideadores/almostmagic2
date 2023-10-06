@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { $throw, Jsonable, check, give, is, shouldNotBe } from "vovas-utils";
 
 export type SpecTypes = {
@@ -26,9 +27,9 @@ export const specTypeKey = (value: SpecType) =>
   : is.string(value)
     ? 'string'
   : is.array(value)
-    ? value.every(is.number) 
+    ? _.every(value, is.number)
       ? 'number[]'
-    : value.every(is.string)
+    : _.every(value, is.string)
       ? 'string[]'
     : $throw('Array items must be either all numbers or all strings')
   : shouldNotBe(value);
