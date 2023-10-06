@@ -1,8 +1,8 @@
 import { Jsonable, is } from "vovas-utils";
-import { MatchingOutput, SpecTypeKey, SpecTypes, Specs, matchingOutputTypeKeys, specTypeKeysIsObject, tryConvert, typeOf } from ".";
+import { MatchingOutput, SpecTypeName, SpecTypes, Specs, matchingOutputTypeKeys, specTypeKeysIsDict, tryConvert, typeOf } from ".";
 import { GenerateException, SpecMismatchException } from "..";
 
-export const isNotSameType = <T extends SpecTypeKey>(value: Jsonable, type: T): value is Exclude<Jsonable, SpecTypes[T]> =>
+export const isNotSameType = <T extends SpecTypeName>(value: Jsonable, type: T): value is Exclude<Jsonable, SpecTypes[T]> =>
   typeOf(value) !== type;
 
 
@@ -13,7 +13,7 @@ export function makeOutputMatchSpecs<S extends Specs>(output: any, specs: S) {
   
   const expectedTypes = matchingOutputTypeKeys(specs);
 
-  if ( specTypeKeysIsObject(expectedTypes) ) {
+  if ( specTypeKeysIsDict(expectedTypes) ) {
 
     if ( !is.jsonableObject(output) )
       throw new GenerateException('outputNotJsonableObject', { output });

@@ -1,4 +1,4 @@
-import { SpecType, SpecTypeKey, SpecTypes, specTypeKey } from ".";
+import { SpecType, SpecTypeName, SpecTypes, specTypeKey } from ".";
 
 /**
  * The desired output of the {@link generate} function.
@@ -54,24 +54,24 @@ export type SpecValueTemplates = typeof specValueTemplates;
 /**
  * Infers the {@link EPSTemplate} to use for a given {@link SpecType}.
  */
-export type TemplateFor<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>];
+export type TemplateFor<T extends SpecType> = SpecValueTemplates[SpecTypeName<T>];
 
 type TestTemplateFor = TemplateFor<number[]>; // expected: [null, "array of numbers", "(array of numbers)"]
 
 /**
  * Infers the exact match part of the {@link EPSTemplate} to use for a given {@link SpecType}.
  */
-export type TemplateExactMatch<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][0];
+export type TemplateExactMatch<T extends SpecType> = SpecValueTemplates[SpecTypeName<T>][0];
 
 /**
  * Infers the prefix part of the {@link EPSTemplate} to use for a given {@link SpecType}.
  */
-export type TemplatePrefix<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][1];
+export type TemplatePrefix<T extends SpecType> = SpecValueTemplates[SpecTypeName<T>][1];
 
 /**
  * Infers the suffix part of the {@link EPSTemplate} to use for a given {@link SpecType}.
  */
-export type TemplateSuffix<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>][2];
+export type TemplateSuffix<T extends SpecType> = SpecValueTemplates[SpecTypeName<T>][2];
 
 /**
  * Infers the {@link specValueTemplates} entry to use for a given value (of a supported type).

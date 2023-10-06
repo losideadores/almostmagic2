@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { SpecType, SpecTypeKey, SpecValueTemplates, TemplateSuffix, templateSuffix } from ".";
+import { SpecType, SpecTypeName, SpecValueTemplates, TemplateSuffix, templateSuffix } from ".";
 
 export type MatchingSpecs<Output extends SpecType | Record<string, SpecType>> = 
   Output extends SpecType

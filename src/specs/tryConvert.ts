@@ -1,6 +1,6 @@
 import yaml from "js-yaml";
 import { Jsonable, check, is, $throw, give, asTypeguard } from "vovas-utils";
-import { SpecTypes, SpecTypeKey } from ".";
+import { SpecTypes, SpecTypeName } from ".";
 
 /**
  * Tries to convert a value to a given type.
@@ -24,7 +24,7 @@ export const tryConvert = <T extends keyof SpecTypes>(value: Exclude<Jsonable, S
       .else( String )
     : check(value as Jsonable)
       .if( is.string, string =>
-        check(type as SpecTypeKey)
+        check(type as SpecTypeName)
           .if( is.exactly('number' as const), () => !isNaN(Number(string)) ? Number(string) : undefined )
           .if( is.exactly('boolean' as const), () => /^true|false$/.test(string) ? string === 'true' : undefined )
           .if( is.exactly('string[]' as const), () => {

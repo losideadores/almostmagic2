@@ -1,6 +1,6 @@
 import { dump } from "js-yaml";
 import { Jsonable } from "vovas-utils";
-import { MatchingOutput, SpecTypeKeys, SpecTypeKeysObject, SpecTypeKeysSingle, Specs, matchingOutputTypeKeys } from "./specs";
+import { MatchingOutput, SpecTypeKeys, SpecTypeKeysDict, SpecTypeKeysSingle, Specs, matchingOutputTypeKeys } from "./specs";
 
 export type GenerateExceptionType = 'noOutput' | 'outputNotJsonable' | 'outputNotJsonableObject' | 'specMismatch' | 'yamlError';
 
@@ -16,7 +16,7 @@ export class GenerateException<T extends GenerateExceptionType> extends Error {
 export class SpecMismatchException<
   S extends Specs,
   HasKey extends boolean,
-  K extends HasKey extends true ? Extract<keyof SpecTypeKeysObject<MatchingOutput<S>>, string> : undefined,
+  K extends HasKey extends true ? Extract<keyof SpecTypeKeysDict<MatchingOutput<S>>, string> : undefined,
   T extends Jsonable
 > extends GenerateException<'specMismatch'> {
   constructor(
@@ -24,7 +24,7 @@ export class SpecMismatchException<
     public key: K,
     public expectedType:
       HasKey extends true
-        ? SpecTypeKeysObject<MatchingOutput<S>>[Extract<keyof SpecTypeKeysObject<MatchingOutput<S>>, string>]
+        ? SpecTypeKeysDict<MatchingOutput<S>>[Extract<keyof SpecTypeKeysDict<MatchingOutput<S>>, string>]
         : SpecTypeKeysSingle<MatchingOutput<S>>,
     public actualValue: T,
   ) {
