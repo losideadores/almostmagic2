@@ -1,9 +1,9 @@
 import yaml, { YAMLException } from "js-yaml";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from 'openai';
 import { $throw, Jsonable, JsonableObject, mutate } from "vovas-utils";
 import { GenerateException } from "./GenerateException";
 import { GenerateMeta } from "./GenerateMeta";
-import { GenerateOptions } from "./GenerateOptions";
+import { GenerateOptions, GenerateOptionsBase } from "./GenerateOptions";
 import { composeChatPrompt } from "./composeChatPrompt";
 import { Inputs } from "./specs/Inputs";
 import { Specs } from "./specs/Specs";
@@ -11,6 +11,12 @@ import { makeOutputMatchSpecs } from "./specs/outputMatchesSpecs";
 import { MatchingOutput } from "./specs";
 
 export const defaultMeta = new GenerateMeta();
+
+export const defaultOptions: GenerateOptionsBase = {};
+
+export function addDefaultOptions(options: GenerateOptionsBase) {
+  Object.assign(defaultOptions, options);
+};
 
 export async function generate<O extends Specs, I extends Inputs>(
   outputSpecs: O,
@@ -21,13 +27,17 @@ export async function generate<O extends Specs, I extends Inputs>(
   const { 
     openaiApiKey, examples, debug, description, meta = defaultMeta, throwOnFailure, 
     postProcess, ...openaiOptions 
-  } = options ?? {};
+  } = {
+    ...defaultOptions,
+    ...options
+  };
 
-  const openai = new OpenAIApi(new Configuration({ apiKey:
-    options?.openaiApiKey ??
-    process.env.OPENAI_API_KEY ??
-    $throw('OpenAI API key is required either as `options.openaiApiKey` or as `process.env.OPENAI_API_KEY`')
-  }));
+  const openai = new OpenAI({
+    apiKey: openaiApiKey ??
+      process.env.OPENAI_API_KEY ??
+      $throw('OpenAI API key is required either as `options.openaiApiKey` or as `process.env.OPENAI_API_KEY`'),
+    dangerouslyAllowBrowser: true
+  });
 
   const messages = composeChatPrompt(
     outputSpecs, 
@@ -44,9 +54,11 @@ export async function generate<O extends Specs, I extends Inputs>(
     messages
   };
 
-  const response = await openai.createChatCompletion(requestData);
+  // const response = await openai.createChatCompletion(requestData);
+  // const { data: { choices: [{ message }] }} = response;
 
-  const { data: { choices: [{ message }] }} = response;
+  const response = await openai.chat.completions.create(requestData);
+  const { choices: [{ message }] } = response;
 
   const { content } = message ?? {};
 

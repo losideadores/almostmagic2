@@ -17,7 +17,7 @@ export const specValueTemplates = {
   number: ['number', null, '(number)'],
   boolean: ['boolean', 'true if ', '(boolean)'],
   'number[]': [null, 'array of numbers', '(array of numbers)'],
-  'string[]': [null, 'array of strings', '(array of strings)'],
+  'string[]': ['array of strings', 'list of', '(array of strings)'],
   // (We had to use "list of" instead of "array of" because then it would work for "array of numbers" as well, as it's not possible to define a TypeScript type that would allow us to distinguish between the two.)
   string: [null, 'string', '(string)'],
 } as const;
@@ -80,3 +80,17 @@ export type InferTypeFromSpecEntry<O extends Record<string, string>, K extends k
         : MatchesSpecValue<O[K]>
       : MatchesSpecKey<K>
     : never;
+
+type TestSpecs = {
+  groceries: 'items to buy (array of strings)',
+  unitPrices: 'unit prices for all items (array of numbers)',
+  total: 'amount to pay (number)',
+  isPaid: 'true if paid',
+  notes: 'arbitrary notes'
+};
+
+type TestInferTypeFromEntry = InferTypeFromSpecEntry<TestSpecs, 'groceries'>; // expected: string[]
+type TestInferTypeFromEntry5 = InferTypeFromSpecEntry<TestSpecs, 'unitPrices'>; // expected: number[]
+type TestInferTypeFromEntry4 = InferTypeFromSpecEntry<TestSpecs, 'total'>; // expected: number
+type TestInferTypeFromEntry2 = InferTypeFromSpecEntry<TestSpecs, 'isPaid'>; // expected: boolean
+type TestInferTypeFromEntry3 = InferTypeFromSpecEntry<TestSpecs, 'notes'>; // expected: string

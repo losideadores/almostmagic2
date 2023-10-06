@@ -4,9 +4,11 @@ import { SpecType, SpecTypeKey, SpecValueTemplates, TemplateSuffix, templateSuff
 export type MatchingSpecs<Output extends SpecType | Record<string, SpecType>> = 
   Output extends SpecType
     ? TemplateSuffix<Output>
-    : {
-      [K in keyof Output]: TemplateSuffix<Output[K]>;
-    };
+  : Output extends Record<string, SpecType>
+    ? {
+      [K in keyof Output]: TemplateSuffix<Output[K]>
+    }
+  : never;
 
 const testOutputs = {
   groceries: ['apples', 'bananas', 'oranges'],
@@ -29,6 +31,6 @@ type TestMatchingSpecs = MatchingSpecs<typeof testOutputs>;
 
 export const matchingSpecs = <Output extends SpecType | Record<string, SpecType>>(output: Output) => (
   typeof output === 'object'
-    ? _.mapValues(output, value => templateSuffix(value) ?? 'string')
+    ? _.mapValues(output as Output & Record<string, SpecType>, value => templateSuffix(value) ?? 'string')
   : templateSuffix(output) ?? 'string'
 ) as MatchingSpecs<Output>;

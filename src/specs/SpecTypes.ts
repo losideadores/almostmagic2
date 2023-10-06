@@ -19,18 +19,19 @@ type TestSpecTypeKey2 = SpecTypeKey<number>; // expected: 'number'
 // type TestSpecTypeKey3 = SpecTypeKey<boolean[]>; // expected: Type 'boolean[]' does not satisfy the constraint 'SpecType'.
 
 export const specTypeKey = (value: SpecType) =>
-  check(value) 
-    .if(is.number, () => 'number')
-    .if(is.boolean, () => 'boolean')
-    .if(is.string, () => 'string')
-    .if(is.array, items =>
-      items.every(is.number) 
-        ? 'number[]'
-      : items.every(is.string)
-        ? 'string[]'
-      : $throw('Array items must be either all numbers or all strings')
-    )
-    .else(shouldNotBe) as SpecTypeKey;
+  is.number(value)
+    ? 'number'
+  : is.boolean(value)
+    ? 'boolean'
+  : is.string(value)
+    ? 'string'
+  : is.array(value)
+    ? value.every(is.number) 
+      ? 'number[]'
+    : value.every(is.string)
+      ? 'string[]'
+    : $throw('Array items must be either all numbers or all strings')
+  : shouldNotBe(value);
 
 export type SpecTypeOrKey<T extends SpecType, What extends 'type' | 'key'> = What extends 'type' ? T : SpecTypeKey<T>;
 

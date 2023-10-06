@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { is } from "vovas-utils";
+import { genericTypeguard, is } from "vovas-utils";
 import { Specs, MatchesSpecValue, MatchesSpecKey, InferTypeFromSpecEntry, SpecTypeKeys, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, specValueTemplates } from ".";
 
 export type MatchingOutput<S extends Specs> = 
@@ -23,7 +23,7 @@ export type MatchingOutputTypeKeys<S extends Specs> = SpecTypeKeys<MatchingOutpu
 export const matchingOutputTypeKeys = <S extends Specs>(specs: S) => (
   typeof specs === 'string' 
     ? typeBasedOnSpecValue(specs) ?? 'string'
-  : is.array(specs)
+  : genericTypeguard<readonly string[]>(is.array)(specs)
     ? _.zipObject(specs, specs.map(key => typeBasedOnSpecKey(key) ?? 'string'))
   : is.jsonableObject(specs)
     ? _.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? 'string')

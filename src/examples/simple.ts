@@ -21,8 +21,8 @@ export const businessIdeas = ( request?: string ) =>
 
 export const swotAnalysis = ( idea: string ) =>
   generate({
-    strengths: 'array',
-    weaknesses: 'array',
-    opportunities: 'array',
-    threats: 'array',
-  }, { idea });
+    strengths: 'array of strings',
+    weaknesses: 'array of strings',
+    opportunities: 'array of strings',
+    threats: 'array of strings',
+  } as const, { idea });
