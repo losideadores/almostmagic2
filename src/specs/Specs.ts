@@ -1,3 +1,5 @@
+import { SpecType, SpecTypeKey, SpecTypes, specTypeKey } from ".";
+
 /**
  * The desired output of the `generate` function.
  * Can be a simple string, a (readonly) array of strings, or a string-to-string record.
@@ -22,6 +24,9 @@ export type MatchesTemplate<T extends EPSTemplate> =
   ( T[0] extends string ? T[0] : never )
   | ( T[1] extends string ? `${T[1]}${string}` : never )
   | ( T[2] extends string ? `${string}${T[2]}` : never );
+
+type TestMatchesTemplate = MatchesTemplate<['boolean', 'true if ', '(boolean)']> 
+// expected: "boolean" | `true if ${string}` | `${string}(boolean)`
 
 /**
  * Actual templates used to match `Specs` item values (i.e. descriptions).
@@ -50,6 +55,8 @@ export type SpecValueTemplates = typeof specValueTemplates;
  * Infers the `EPSTemplate` to use for a given `SpecType`.
  */
 export type TemplateFor<T extends SpecType> = SpecValueTemplates[SpecTypeKey<T>];
+
+type TestTemplateFor = TemplateFor<number[]>; // expected: [null, "array of numbers", "(array of numbers)"]
 
 /**
  * Infers the exact match part of the `EPSTemplate` to use for a given `SpecType`.
@@ -86,6 +93,10 @@ export const templatePrefix = <T extends SpecType>(value: T) => templateFor(valu
  */
 export const templateSuffix = <T extends SpecType>(value: T) => templateFor(value)[2] as TemplateSuffix<T>;
 
+type TestTemplateExactMatch = TemplateExactMatch<number[]>; // expected: null
+type TestTemplatePrefix = TemplatePrefix<boolean>; // expected: "true if "
+type TestTemplateSuffix = TemplateSuffix<string[]>; // expected: "(array of strings)"
+
 /**
  * Actual templates used to match `Specs` item keys.
  * - If the key starts with "is" or ends with "Boolean", the type will be inferred as `boolean`.
@@ -96,7 +107,7 @@ export const templateSuffix = <T extends SpecType>(value: T) => templateFor(valu
  */
 export const specKeyTemplates = {
   boolean: [null, 'is', 'Boolean'],
-  // Note: This will also be triggered on "normal" words starting with "is", e.g. "island", so avoid such words.
+  // Note: This will also be triggered on "normal" words starting with "is", e.g. "island".
   // TODO: Think of a different way to do this (require an underscore prefix, i.e. "is_paid" instead of "isPaid"?)
   'string[]': [null, null, 'Array'],
   string: [null, null, 'String'],
@@ -114,6 +125,10 @@ export type InferTypeFromKey<K extends string> = {
   [P in keyof SpecKeyTemplates]: K extends MatchesTemplate<SpecKeyTemplates[P]> ? SpecTypes[P] : never;
 }[keyof SpecKeyTemplates];
 
+type TestInferTypeFromKey = InferTypeFromKey<'isPaid'>; // expected: boolean
+type TestInferTypeFromKey2 = InferTypeFromKey<'notesArray'>; // expected: string[]
+type TestInferTypeFromKey3 = InferTypeFromKey<'groceries'>; // expected: never
+
 /**
  * Infers the `SpecType` to use for a given `Specs` item value (i.e. description).
  */
@@ -121,6 +136,11 @@ export type InferTypeFromValue<V extends string> = {
   [P in keyof SpecValueTemplates]: Lowercase<V> extends MatchesTemplate<SpecValueTemplates[P]> ? SpecTypes[P] : never;
   // We do lowercase for values because users will often enter descriptions in their preferred casing, and we want to be able to match them all.
 }[keyof SpecValueTemplates];
+
+type TestInferTypeFromValue = InferTypeFromValue<'number'>; // expected: number
+type TestInferTypeFromValue2 = InferTypeFromValue<'true if paid'>; // expected: boolean
+type TestInferTypeFromValue3 = InferTypeFromValue<'array of numbers'>; // expected: number[]
+type TestInferTypeFromValue4 = InferTypeFromValue<'list of items to buy'>; // expected: string[]
 
 /**
  * Infers the `SpecType` to use for a given key-value pair in a record-based `Specs` item.
@@ -134,42 +154,16 @@ export type InferTypeFromSpecEntry<O extends Record<string, string>, K extends k
       : InferTypeFromKey<K>
     : never;
 
-/**
- * Infers the `SpecType` to use for a given key-value pair in a record-based `Specs` item.
- */
-export type SpecType = number | boolean | string[] | number[];
-
-/**
- * Infers the `SpecTypeKey` to use for a given `SpecType`.
- */
-export type SpecTypeKey<T extends SpecType> = T extends number ? 'number' :
-  T extends boolean ? 'boolean' :
-  T extends string[] ? 'string[]' :
-  T extends number[] ? 'number[]' :
-  never;
-
-/**
- * Infers the `SpecType` to use for a given `SpecTypeKey`.
- */
-export type SpecTypes = {
-  [K in keyof SpecValueTemplates]: K extends SpecTypeKey<SpecTypes[K]> ? SpecTypes[K] : never;
+type TestSpecs = {
+  groceries: 'items to buy (array of strings)',
+  unitPrices: 'unit prices for all items (array of numbers)',
+  total: 'amount to pay (number)',
+  isPaid: 'true if paid',
+  notes: 'arbitrary notes'
 };
 
-/**
- * Infers the `SpecType` to use for a given `SpecTypeKey`.
- */
-export const specTypeKey = <T extends SpecType>(value: T) => {
-  switch (typeof value) {
-    case 'number': return 'number';
-    case 'boolean': return 'boolean';
-    case 'object':
-      if (Array.isArray(value)) {
-        if (value.every((v) => typeof v === 'number')) {
-          return 'number[]';
-        } else if (value.every((v) => typeof v === 'string')) {
-          return 'string[]';
-        }
-      }
-  }
-  throw new Error(`Unsupported value type: ${typeof value}`);
-};
+type TestInferTypeFromEntry = InferTypeFromSpecEntry<TestSpecs, 'groceries'>; // expected: string[]
+type TestInferTypeFromEntry5 = InferTypeFromSpecEntry<TestSpecs, 'unitPrices'>; // expected: number[]
+type TestInferTypeFromEntry4 = InferTypeFromSpecEntry<TestSpecs, 'total'>; // expected: number
+type TestInferTypeFromEntry2 = InferTypeFromSpecEntry<TestSpecs, 'isPaid'>; // expected: boolean
+type TestInferTypeFromEntry3 = InferTypeFromSpecEntry<TestSpecs, 'notes'>; // expected: string
