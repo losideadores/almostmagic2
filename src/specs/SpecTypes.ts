@@ -75,7 +75,7 @@ export type SpecTypeKeysSingle<T extends SpecTypeOrDict> =
   : never;
 
 /**
- * Combines the effects of {@link SpecTypeKeysDict} and {@link SpecTypeKeysSingle}, returning the union of the two (and thus excluding `never`)
+ * Converts a {@link SpecTypeOrDict} to its corresponding {@link SpecTypeName} (if `T` is a {@link SpecType}) or {@link SpecTypeKeysDict} (if `T` a dict whose values are {@link SpecType}s).
  */
 export type SpecTypeKeys<T extends SpecTypeOrDict> =
   SpecTypeKeysDict<T> | SpecTypeKeysSingle<T>;

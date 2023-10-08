@@ -33,7 +33,7 @@ type TestMatchesTemplate = MatchesTemplate<['boolean', 'true if ', '(boolean)']>
  * - If the description is exactly "number" or ends with "(number)", the type will be inferred as {@link number}.
  * - If the description is exactly "boolean" or starts with "true if " or ends with "(boolean)", the type will be inferred as {@link boolean}.
  * - If the description starts with "array of numbers" or ends with "(array of numbers)", the type will be inferred as `number[]`.
- * - If the description is exactly "array of strings" or starts with "list of" or ends with "(array of strings)", the type will be inferred as `string[]`.
+ * - If the description is exactly "array of strings" or ends with "(array of strings)", the type will be inferred as `string[]`.
  * - If the description is exactly "string" or ends with "(string)", the type will be inferred as {@link string}.
  * - Otherwise, the type will be inferred as {@link string}.
  */
@@ -41,8 +41,7 @@ export const specValueTemplates = {
   number: ['number', null, '(number)'],
   boolean: ['boolean', 'true if ', '(boolean)'],
   'number[]': [null, 'array of numbers', '(array of numbers)'],
-  'string[]': ['array of strings', 'list of', '(array of strings)'],
-  // (We had to use "list of" instead of "array of" because then it would work for "array of numbers" as well, as it's not possible to define a TypeScript type that would allow us to distinguish between the two.)
+  'string[]': ['array of strings', null, '(array of strings)'],
   string: [null, 'string', '(string)'],
 } as const;
 

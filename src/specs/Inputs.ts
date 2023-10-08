@@ -1,1 +1,6 @@
-export type Inputs = Record<string, string | number | boolean | null | string[] | number[]> | string;
+import { SpecType } from "./SpecTypes";
+
+/**
+ * A type representing the input to the {@link generate} function: either a string (simple description of the input), or a mapping between string keys and {@link SpecType}s.
+ */
+export type Inputs = string | Record<string, SpecType>;
