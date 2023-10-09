@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { asTypeguard, is } from "vovas-utils";
-import { Specs, InferTypeFromValue, InferTypeFromKey, InferTypeFromSpecEntry, SpecTypeKeys, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, specValueTemplates } from ".";
+import { Specs, InferTypeFromValue, InferTypeFromKey, InferTypeFromSpecEntry, SpecTypeNames, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, specValueTemplates } from ".";
 
 /**
  * Infers the expected output type for given {@link Specs}.
@@ -45,7 +45,7 @@ export type MatchingOutput<S extends Specs> =
 /**
  * Same as {@link MatchingOutput}, but values are {@link SpecTypeKey}s (i.e. strings), not actual {@link SpecType}s.
  */
-export type MatchingOutputTypeKeys<S extends Specs> = SpecTypeKeys<MatchingOutput<S>>;
+export type MatchingOutputTypeKeys<S extends Specs> = SpecTypeNames<MatchingOutput<S>>;
 
 /**
  * Infers the expected output type(s) for given {@link Specs} in the form of {@link MatchingOutputTypeKeys}.

@@ -62,7 +62,7 @@ export type SpecTypeOrDict = SpecType | Record<string, SpecType>;
 /**
  * Converts the values in a dict-like {@link SpecTypeOrDict} to their corresponding {@link SpecTypeName}s. If the input is a {@link SpecType} (not dict-like), returns `never`.
  */
-export type SpecTypeKeysDict<T extends SpecTypeOrDict> =
+export type SpecTypeNamesDict<T extends SpecTypeOrDict> =
   T extends Record<string, SpecType>
     ? {
       [K in keyof T]: SpecTypeName<T[K]>;
@@ -72,27 +72,27 @@ export type SpecTypeKeysDict<T extends SpecTypeOrDict> =
 /**
  * Converts a non-dict-like {@link SpecTypeOrDict} to its corresponding {@link SpecTypeName}. If the input is dict-like {@link SpecTypeOrDict}, returns `never`.
  */
-export type SpecTypeKeysSingle<T extends SpecTypeOrDict> =
+export type SpecTypeNamesSingle<T extends SpecTypeOrDict> =
   T extends SpecType
     ? SpecTypeName<T>
   : never;
 
 /**
- * Converts a {@link SpecTypeOrDict} to its corresponding {@link SpecTypeName} (if `T` is a {@link SpecType}) or {@link SpecTypeKeysDict} (if `T` a dict whose values are {@link SpecType}s).
+ * Converts a {@link SpecTypeOrDict} to its corresponding {@link SpecTypeName} (if `T` is a {@link SpecType}) or {@link SpecTypeNamesDict} (if `T` a dict whose values are {@link SpecType}s).
  */
-export type SpecTypeKeys<T extends SpecTypeOrDict> =
-  SpecTypeKeysDict<T> | SpecTypeKeysSingle<T>;
+export type SpecTypeNames<T extends SpecTypeOrDict> =
+  SpecTypeNamesDict<T> | SpecTypeNamesSingle<T>;
 
 /**
- * A typeguard that checks whether a given value of type {@link SpecTypeKeys} is a dict-like, i.e. a {@link SpecTypeKeysDict}.
+ * A typeguard that checks whether a given value of type {@link SpecTypeNames} is a dict-like, i.e. a {@link SpecTypeNamesDict}.
  * 
  * @param value Value to check.
- * @returns `true` (narrowing `value` to {@link SpecTypeKeysDict}) if `value` is a dict-like, `false` (narrowing `value` to {@link SpecTypeKeysSingle}) otherwise.
+ * @returns `true` (narrowing `value` to {@link SpecTypeNamesDict}) if `value` is a dict-like, `false` (narrowing `value` to {@link SpecTypeNamesSingle}) otherwise.
  */
 export const specTypeKeysIsDict = <T extends SpecTypeOrDict>(
-  value: SpecTypeKeys<T>
-): value is SpecTypeKeysDict<T> =>
+  value: SpecTypeNames<T>
+): value is SpecTypeNamesDict<T> =>
   typeof value === 'object';  
 
-type TestTypeKeys = SpecTypeKeys<{ a: string[], b: number }>; // expected: { a: 'string[]', b: 'number' }
-type TestTypeKeys2 = SpecTypeKeys<string[]>; // expected: 'string[]'
+type TestTypeKeys = SpecTypeNames<{ a: string[], b: number }>; // expected: { a: 'string[]', b: 'number' }
+type TestTypeKeys2 = SpecTypeNames<string[]>; // expected: 'string[]'
