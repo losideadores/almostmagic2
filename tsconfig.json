@@ -9,4 +9,9 @@
     "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*"],
+  "typedocOptions": {
+		"out": "docs",
+    "entryPoints": ["src/index.ts"],
+    "readme": "./README.md",
+  }
 }
