@@ -72,7 +72,7 @@ export const composeChatPrompt = < O extends Specs, I extends Inputs >(
         : Object.keys(outputs)
   );
 
-  const randomSeed = () => ({ seed: _.random(1000, 9999) });
+  const randomSeed = () => ({ randomSeedDoNotMention: _.random(1000, 9999) });
 
   return [
     chat.system(description ?? 'You come up with (artificially generate) arbitrary data based on arbitrary inputs, using the best of your AI abilities.'),
