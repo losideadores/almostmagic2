@@ -43,7 +43,7 @@ export type MatchingOutput<S extends Specs> =
     } : never;
 
 /**
- * Same as {@link MatchingOutput}, but values are {@link SpecTypeKey}s (i.e. strings), not actual {@link SpecType}s.
+ * Same as {@link MatchingOutput}, but values are {@link SpecTypeName}s (i.e. strings), not actual {@link SpecType}s.
  */
 export type MatchingOutputTypeKeys<S extends Specs> = SpecTypeNames<MatchingOutput<S>>;
 
