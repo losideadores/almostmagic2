@@ -7,11 +7,10 @@ import { Specs } from "./specs/Specs";
  * Type for the configuration of a {@link Generator}.
  * @template O Type of the outputs, extending {@link Specs}.
  * @template I Type of the inputs, extending {@link Inputs}.
- * @property {O} outputSpecs Output specifications for the generation (@see {@link Specs}).
- * @property {GenerateOptions<O, I>} options Options for the generation.
  */
 export type GeneratorConfig<O extends Specs, I extends Inputs> =
   GenerateOptions<O, I> & {
+    /** Output specifications for the generation (@see {@link Specs}). */
     outputSpecs: O,
   }
 

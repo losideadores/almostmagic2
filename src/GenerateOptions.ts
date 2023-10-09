@@ -5,18 +5,22 @@ import { MatchingOutput } from "./specs/MatchingOutput";
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions";
 
 /**
- * Base options for the generate function.
- * @property {string} [openaiApiKey] - The API key for OpenAI.
- * @property {GenerateMeta} [meta] - Metadata for the generation.
- * @property {string} [description] - Description of the generation.
- * @property {boolean} [debug] - If true, debug information will be logged.
- * @property {boolean} [throwOnFailure] - If true, an error will be thrown if the generation fails.
+ * Base options for the {@link generate} function.
  */
 export type GenerateOptionsBase = {
+  /** The API key for OpenAI. */
   openaiApiKey?: string;
+  
+  /** Metadata for the generation. */
   meta?: GenerateMeta;
+  
+  /** Description of the generation. */
   description?: string;
+  
+  /** If true, debug information will be logged. */
   debug?: boolean;
+  
+  /** If true, an error will be thrown if the generation fails. */
   throwOnFailure?: boolean;
 };
 
@@ -38,12 +42,10 @@ export type GenerateExample<I extends Inputs, O extends Specs> =
       : MatchingOutput<O>
   );
 
-  /**
- * Options for the generate function.
+/**
+ * Options for the {@link generate} function.
  * @template O Type of the outputs, extending {@link Specs}.
  * @template I Type of the inputs, extending {@link Inputs}.
- * @property {Array<GenerateExample<I, O>>} [examples] - The examples to use for the generation.
- * @property {function(MatchingOutput<O>): MatchingOutput<O>} [postProcess] - A function to post process the output of the generation.
  * @see {@link ChatCompletionCreateParamsBase} for OpenAI-specific options.
  * @see {@link GenerateOptionsBase} for base options.
  * @see {@link GenerateExample} for examples.
@@ -56,6 +58,8 @@ export type GenerateOptions<
   'model' | 'temperature' | 'top_p' | 'max_tokens' | 
   'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'
 >> & GenerateOptionsBase & {
+  /** The examples to use for the generation. */
   examples?: GenerateExample<I, O>[];
+  /** A function to post process the output of the generation. */
   postProcess?: ( output: MatchingOutput<O> ) => MatchingOutput<O>;
 };
