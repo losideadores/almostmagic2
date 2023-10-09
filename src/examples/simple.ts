@@ -1,7 +1,7 @@
 import { generate } from "..";
 
 /**
- * Function that generates a postal code for a given location.
+ * Example function that generates a postal code for a given location.
  * @param location The location to generate the postal code for.
  * @returns A string representing the generated postal code.
  * @example
@@ -12,7 +12,7 @@ export function getPostalCode(location: string) {
 }
 
 /**
- * Function that generates a random but plausible address line for a given location.
+ * Example function that generates a random but plausible address line for a given location.
  * @param location The location to generate the address line for. If no location is provided, a general address line is generated.
  * @returns A string representing the generated address line.
  * @example
@@ -24,7 +24,7 @@ export function randomAddressLine(location?: string) {
 }
 
 /**
- * Function that generates baby name ideas based on a given request.
+ * Example function that generates baby name ideas based on a given request.
  * @param request The request to generate the baby name ideas for. If no request is provided, general baby name ideas are generated.
  * @returns An array of strings representing the generated baby name ideas.
  * @example
@@ -35,7 +35,7 @@ export function babyNameIdeas(request?: string) {
 }
 
 /**
- * Function that generates business ideas based on a given request.
+ * Example function that generates business ideas based on a given request.
  * @param request The request to generate the business ideas for. If no request is provided, general business ideas are generated.
  * @returns An array of strings representing the generated business ideas.
  * @example
@@ -46,7 +46,7 @@ export function businessIdeas(request?: string) {
 }
 
 /**
- * Function that generates a SWOT analysis for a given idea.
+ * Example function that generates a SWOT analysis for a given idea.
  * @param idea The idea to generate the SWOT analysis for.
  * @returns An object with `strengths`, `weaknesses`, `opportunities`, and `threats` properties, each an array of strings representing the respective elements of the SWOT analysis.
  * @example

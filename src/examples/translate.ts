@@ -15,7 +15,7 @@ export const languages = [
 export type Language = (typeof languages)[number];
 
 /**
- * Function that translates a given text into the specified languages.
+ * Example function that translates a given text into the specified languages.
  * @param text The text to translate.
  * @param toLanguages The languages to translate the text into. Each language should be represented by its code from the {@link languages} array (type {@link Language}).
  * @returns An object where each key is a language code and the corresponding value is the translation of the text into that language.

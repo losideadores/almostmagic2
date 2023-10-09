@@ -29,7 +29,7 @@ export function addDefaultOptions(options: GenerateOptionsBase) {
 };
 
 /**
- * Function to generate text using OpenAI's GPT-3 model.
+ * Generates, using OpenAI's API, data according to given output specifications and inputs.
  * @template O Type of the outputs, extending {@link Specs}.
  * @template I Type of the inputs, extending {@link Inputs}.
  * @param {O} outputSpecs Output specifications for the generation.
