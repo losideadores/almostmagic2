@@ -32,17 +32,17 @@ type TestMatchesTemplate = MatchesTemplate<['boolean', 'true if ', '(boolean)']>
  * Actual templates used to match {@link Specs} item values (i.e. descriptions).
  * - If the description is exactly "number" or ends with "(number)", the type will be inferred as {@link number}.
  * - If the description is exactly "boolean" or starts with "true if " or ends with "(boolean)", the type will be inferred as {@link boolean}.
- * - If the description starts with "array of numbers" or ends with "(array of numbers)", the type will be inferred as `number[]`.
+ * - If the description is exactly or starts with "array of numbers" or ends with "(array of numbers)", the type will be inferred as `number[]`.
  * - If the description is exactly "array of strings" or ends with "(array of strings)", the type will be inferred as `string[]`.
- * - If the description is exactly "string" or ends with "(string)", the type will be inferred as {@link string}.
+ * - If the description is exactly or starts with "string" or ends with "(string)", the type will be inferred as {@link string}.
  * - Otherwise, the type will be inferred as {@link string}.
  */
 export const specValueTemplates = {
   number: ['number', null, '(number)'],
   boolean: ['boolean', 'true if ', '(boolean)'],
-  'number[]': [null, 'array of numbers', '(array of numbers)'],
+  'number[]': ['array of numbers', 'array of numbers', '(array of numbers)'],
   'string[]': ['array of strings', null, '(array of strings)'],
-  string: [null, 'string', '(string)'],
+  string: ['string', 'string', '(string)'],
 } as const;
 
 /**
