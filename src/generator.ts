@@ -4,17 +4,6 @@ import { Inputs } from "./specs/Inputs";
 import { Specs } from "./specs/Specs";
 
 /**
- * Type for the configuration of a {@link Generator}.
- * @template O Type of the outputs, extending {@link Specs}.
- * @template I Type of the inputs, extending {@link Inputs}.
- */
-export type GeneratorConfig<O extends Specs, I extends Inputs> =
-  GenerateOptions<O, I> & {
-    /** Output specifications for the generation (@see {@link Specs}). */
-    outputSpecs: O,
-  }
-
-/**
  * Class representing a Generator. This can be a handier alternative to the {@link generate} function if you want to reuse the same generation configuration (e.g. OpenAI API key, output specifications, etc.) from multiple places.
  * @template O Type of the outputs, extending {@link Specs}.
  * @template I Type of the inputs, extending {@link Inputs}.
@@ -29,7 +18,8 @@ export class Generator<
    * @param {GeneratorConfig<O, I>} config Configuration for the Generator.
    */
   constructor(
-    public config: GeneratorConfig<O, I>
+    public outputSpecs: O,
+    public options?: GenerateOptions<O, I>
   ) { };
 
   /**
@@ -40,7 +30,7 @@ export class Generator<
    */
   generateFor(inputs: I) {
 
-    const { outputSpecs, ...options } = this.config;
+    const { outputSpecs, options } = this;
     return generate(outputSpecs, inputs, options);
 
   };
