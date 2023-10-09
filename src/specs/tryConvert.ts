@@ -6,7 +6,7 @@ import { SpecTypes, SpecTypeName } from ".";
  * Tries to convert a value to a given type.
  * 
  * @param value - The value to convert.
- * @param type - The type to convert the value to, expressed as a string from the `SpecTypes` type.
+ * @param type - The type to convert the value to, expressed as a {@link SpecTypeName}.
  * @returns The converted value, or undefined if the conversion failed.
  * 
  * Note: We can convert most values to strings, and strings to most other types.

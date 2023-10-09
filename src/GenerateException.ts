@@ -1,6 +1,6 @@
 import { dump } from "js-yaml";
 import { Jsonable } from "vovas-utils";
-import { MatchingOutput, SpecTypeKeys, SpecTypeKeysDict, SpecTypeKeysSingle, Specs, matchingOutputTypeKeys } from "./specs";
+import { MatchingOutput, SpecTypeKeysDict, SpecTypeKeysSingle, Specs } from "./specs";
 
 export type GenerateExceptionType = 'noOutput' | 'outputNotJsonable' | 'outputNotJsonableObject' | 'specMismatch' | 'yamlError';
 

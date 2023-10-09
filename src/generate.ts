@@ -10,14 +10,34 @@ import { Specs } from "./specs/Specs";
 import { castToSpecs } from "./specs/castToSpecs";
 import { MatchingOutput } from "./specs";
 
+/**
+ * Default metadata for the generate function.
+ */
 export const defaultMeta = new GenerateMeta();
 
+/**
+ * Default options for the generate function.
+ */
 export const defaultOptions: GenerateOptionsBase = {};
 
+/**
+ * Function to add default options to the generate function.
+ * @param options - The options to add.
+ */
 export function addDefaultOptions(options: GenerateOptionsBase) {
   Object.assign(defaultOptions, options);
 };
 
+/**
+ * Function to generate text using OpenAI's GPT-3 model.
+ * @template O Type of the outputs, extending {@link Specs}.
+ * @template I Type of the inputs, extending {@link Inputs}.
+ * @param {O} outputSpecs Output specifications for the generation.
+ * @param {I} [inputs] Inputs for the generation.
+ * @param {GenerateOptions<O, I>} [options] Options for the generation.
+ * @returns {Promise<MatchingOutput<O> | undefined>} Generated data according to the output specifications, or undefined if the generation failed and `options.throwOnFailure` is false.
+ * @throws {Error} if an error occurred and `options.throwOnFailure` is true.
+ */
 export async function generate<O extends Specs, I extends Inputs>(
   outputSpecs: O,
   inputs?: I,

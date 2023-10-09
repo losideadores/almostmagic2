@@ -3,22 +3,61 @@ import _ from "lodash";
 import { chat } from "./chatMessage";
 import { Inputs } from "./specs/Inputs";
 import { Specs } from "./specs/Specs";
-import { GenerateOptions } from "./GenerateOptions";
+import { GenerateExample, GenerateOptions } from "./GenerateOptions";
+import { ChatCompletionMessageParam } from "openai/resources/chat";
 
-const sentenceCase = (str: string) => _.upperFirst(_.toLower(_.startCase(str)));
+/**
+ * Converts the first character of `string` to upper case and the remaining to lower case.
+ * @param str String to convert.
+ * @returns the converted string.
+ */
+export function sentenceCase(str: string) {
+  return _.upperFirst(_.toLower(_.startCase(str)));
+};
 
-export const serialize = (obj: any, sentencify: boolean ) => yaml.dump(
-  sentencify
-    ? Array.isArray(obj)
-      ? obj.map(sentenceCase)
-      : typeof obj === "string"
-        ? sentenceCase(obj)
-        : _.mapKeys(obj, (v, k) => sentenceCase(k))
-    : obj,
-).trim();
+/**
+ * Serializes the given object to a YAML string. If `sentencify` is true, it converts the keys to sentence case.
+ * @param obj Object to serialize.
+ * @param sentencify Whether to convert keys to sentence case (@see {@link sentenceCase}).
+ * @returns the resulting YAML string.
+ */
+export function serialize(obj: any, sentencify: boolean) {
+  return yaml.dump(
+    sentencify
+      ? Array.isArray(obj)
+        ? obj.map(sentenceCase)
+        : typeof obj === "string"
+          ? sentenceCase(obj)
+          : _.mapKeys(obj, (v, k) => sentenceCase(k))
+      : obj
+  ).trim();
+};
 
-const envelope = (char: string) => (str: string) => `${char}${str}${char}`;
+/**
+ * Returns a function that wraps a string with a given string.
+ * @param char String to wrap with.
+ * @returns Function that wraps a string with a given string.
+ * 
+ * @example
+ * const wrapWithAsterisks = wrapWith('*');
+ * wrapWithAsterisks('hello'); // returns '*hello*'
+ */
+export function wrapWith(char: string) {
+  return (str: string) => `${char}${str}${char}`;
+}
 
+/**
+ * Returns the chat prompt (array of {@link ChatCompletionMessageParam}s) allowing the model to generate the given `outputs` based on the given `inputs`.
+ * 
+ * @template O Type of the outputs, extending {@link Specs}.
+ * @template I Type of the inputs, extending {@link Inputs}.
+ * @param outputs Outputs that the model should generate.
+ * @param inputs Inputs that the model should use to generate the outputs.
+ * @param {GenerateOptions<O, I>} options Options for generating the chat prompt.
+ * @param {string} options.description Description of the prompt.
+ * @param {GenerateExample<I, O>[]} options.examples Examples of inputs and outputs.
+ * @returns The chat prompt (array of {@link ChatCompletionMessageParam}s) allowing the model to generate the given `outputs` based on the given `inputs`.
+ */
 export const composeChatPrompt = < O extends Specs, I extends Inputs >(
   outputs: O,
   inputs?: I,
@@ -60,11 +99,8 @@ export const composeChatPrompt = < O extends Specs, I extends Inputs >(
                 ? { input: inputs }
                 : inputs
               : randomSeed(), true)}`),
-          // chat.system(`Come up with an output based on the input provided by the user as a YAML object with the following keys: ${
-          //   outputKeys.map(envelope('`')).join(', ')
-          // }. Provide just the YAML object, without any enclosing text or formatting. Do not forget to enclose any strings containing colons in quotes (per YAML syntax).`),
           chat.system(`Come up with an output based on the input provided by the user as a JSON object with the following keys: ${
-            outputKeys.map(envelope('`')).join(', ')
+            outputKeys.map(wrapWith('`')).join(', ')
           }. Provide just the JSON object, without any indents, enclosing text or formatting.`),
         ]
     )
