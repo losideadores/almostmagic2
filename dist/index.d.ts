@@ -1,8 +1,8 @@
 import * as vovas_utils from 'vovas-utils';
 import { Jsonable } from 'vovas-utils';
-import * as openai_resources_chat from 'openai/resources/chat';
 import { ChatCompletionCreateParamsNonStreaming, ChatCompletion, ChatCompletionMessageParam } from 'openai/resources/chat';
 import { ChatCompletionCreateParamsBase } from 'openai/resources/chat/completions';
+import { ClientOptions } from 'openai';
 
 /**
  * A mapping between {@link SpecTypeName}s (i.e. string representations of {@link SpecType}s as per TypeScript's type system) and their corresponding {@link SpecType}s.
@@ -43,24 +43,24 @@ type SpecTypeOrDict = SpecType | Record<string, SpecType>;
 /**
  * Converts the values in a dict-like {@link SpecTypeOrDict} to their corresponding {@link SpecTypeName}s. If the input is a {@link SpecType} (not dict-like), returns `never`.
  */
-type SpecTypeKeysDict<T extends SpecTypeOrDict> = T extends Record<string, SpecType> ? {
+type SpecTypeNamesDict<T extends SpecTypeOrDict> = T extends Record<string, SpecType> ? {
     [K in keyof T]: SpecTypeName<T[K]>;
 } : never;
 /**
  * Converts a non-dict-like {@link SpecTypeOrDict} to its corresponding {@link SpecTypeName}. If the input is dict-like {@link SpecTypeOrDict}, returns `never`.
  */
-type SpecTypeKeysSingle<T extends SpecTypeOrDict> = T extends SpecType ? SpecTypeName<T> : never;
+type SpecTypeNamesSingle<T extends SpecTypeOrDict> = T extends SpecType ? SpecTypeName<T> : never;
 /**
- * Converts a {@link SpecTypeOrDict} to its corresponding {@link SpecTypeName} (if `T` is a {@link SpecType}) or {@link SpecTypeKeysDict} (if `T` a dict whose values are {@link SpecType}s).
+ * Converts a {@link SpecTypeOrDict} to its corresponding {@link SpecTypeName} (if `T` is a {@link SpecType}) or {@link SpecTypeNamesDict} (if `T` a dict whose values are {@link SpecType}s).
  */
-type SpecTypeKeys<T extends SpecTypeOrDict> = SpecTypeKeysDict<T> | SpecTypeKeysSingle<T>;
+type SpecTypeNames<T extends SpecTypeOrDict> = SpecTypeNamesDict<T> | SpecTypeNamesSingle<T>;
 /**
- * A typeguard that checks whether a given value of type {@link SpecTypeKeys} is a dict-like, i.e. a {@link SpecTypeKeysDict}.
+ * A typeguard that checks whether a given value of type {@link SpecTypeNames} is a dict-like, i.e. a {@link SpecTypeNamesDict}.
  *
  * @param value Value to check.
- * @returns `true` (narrowing `value` to {@link SpecTypeKeysDict}) if `value` is a dict-like, `false` (narrowing `value` to {@link SpecTypeKeysSingle}) otherwise.
+ * @returns `true` (narrowing `value` to {@link SpecTypeNamesDict}) if `value` is a dict-like, `false` (narrowing `value` to {@link SpecTypeNamesSingle}) otherwise.
  */
-declare const specTypeKeysIsDict: <T extends SpecTypeOrDict>(value: SpecTypeKeys<T>) => value is SpecTypeKeysDict<T>;
+declare const specTypeKeysIsDict: <T extends SpecTypeOrDict>(value: SpecTypeNames<T>) => value is SpecTypeNamesDict<T>;
 
 /**
  * A type representing the input to the {@link generate} function: either a string (simple description of the input), or a mapping between string keys and {@link SpecType}s.
@@ -97,9 +97,9 @@ type MatchingOutput<S extends Specs> = S extends string ? InferTypeFromValue<S> 
     [K in keyof S]: InferTypeFromSpecEntry<S, K>;
 } : never;
 /**
- * Same as {@link MatchingOutput}, but values are {@link SpecTypeKey}s (i.e. strings), not actual {@link SpecType}s.
+ * Same as {@link MatchingOutput}, but values are {@link SpecTypeName}s (i.e. strings), not actual {@link SpecType}s.
  */
-type MatchingOutputTypeKeys<S extends Specs> = SpecTypeKeys<MatchingOutput<S>>;
+type MatchingOutputTypeKeys<S extends Specs> = SpecTypeNames<MatchingOutput<S>>;
 /**
  * Infers the expected output type(s) for given {@link Specs} in the form of {@link MatchingOutputTypeKeys}.
  *
@@ -108,10 +108,39 @@ type MatchingOutputTypeKeys<S extends Specs> = SpecTypeKeys<MatchingOutput<S>>;
  */
 declare function matchingOutputTypeKeys<S extends Specs>(specs: S): MatchingOutputTypeKeys<S>;
 
-type MatchingSpecs<Output extends SpecType | Record<string, SpecType>> = Output extends SpecType ? TemplateSuffix<Output> : Output extends Record<string, SpecType> ? {
-    [K in keyof Output]: TemplateSuffix<Output[K]>;
+/**
+ * Infers (as type) the {@link Specs} required to generate output of a given type, represented as a {@link SpecTypeOrDict}. The inferred strings are based on the {@link TemplateExactMatch} part of the {@link SpecValueTemplates} for each {@link SpecType}.
+ *
+ * @example
+ * const outputs = {
+ *   groceries: ['apples', 'bananas', 'oranges'],
+ *   unitPrices: [1.5, 2, 1],
+ *   total: 4.5,
+ *   isPaid: true,
+ *   notes: 'Buy organic if possible',
+ * };
+ *
+ * type TestSpecs = MatchingSpecs<typeof outputs>;
+ * // expected:
+ * // type TestSpecs = {
+ * //   groceries: "array of strings";
+ * //   unitPrices: "array of numbers";
+ * //   total: "number";
+ * //   isPaid: "boolean";
+ * //   notes: "string";
+ * // };
+ */
+type MatchingSpecs<Output extends SpecTypeOrDict> = Output extends SpecType ? TemplateExactMatch<Output> : Output extends Record<string, SpecType> ? {
+    [K in keyof Output]: TemplateExactMatch<Output[K]>;
 } : never;
-declare const matchingSpecs: <Output extends SpecType | Record<string, SpecType>>(output: Output) => MatchingSpecs<Output>;
+/**
+ *
+ * Returns the specs required to generate an output of the same type as the one provided (@see {@link MatchingSpecs}).
+ *
+ * @param output Output to infer the specs for.
+ * @returns The specs required to generate an output of the same type as the one provided.
+ */
+declare const matchingSpecs: <Output extends SpecTypeOrDict>(output: Output) => MatchingSpecs<Output>;
 
 /**
  * The desired output of the {@link generate} function.
@@ -134,19 +163,19 @@ type EPSTemplate = readonly [string | null, string | null, string | null];
 type MatchesTemplate<T extends EPSTemplate> = (T[0] extends string ? T[0] : never) | (T[1] extends string ? `${T[1]}${string}` : never) | (T[2] extends string ? `${string}${T[2]}` : never);
 /**
  * Actual templates used to match {@link Specs} item values (i.e. descriptions).
- * - If the description is exactly "number" or ends with "(number)", the type will be inferred as {@link number}.
- * - If the description is exactly "boolean" or starts with "true if " or ends with "(boolean)", the type will be inferred as {@link boolean}.
- * - If the description starts with "array of numbers" or ends with "(array of numbers)", the type will be inferred as `number[]`.
- * - If the description is exactly "array of strings" or ends with "(array of strings)", the type will be inferred as `string[]`.
- * - If the description is exactly "string" or ends with "(string)", the type will be inferred as {@link string}.
- * - Otherwise, the type will be inferred as {@link string}.
+ * - If the description is exactly "number" or ends with "(number)", the type will be inferred as a `number`.
+ * - If the description is exactly "boolean" or starts with "true if " or ends with "(boolean)", the type will be inferred as a `boolean`.
+ * - If the description is exactly or starts with "array of numbers" or ends with "(array of numbers)", the type will be inferred as `number[]`.
+ * - If the description is exactly or starts with "array of strings" or ends with "(array of strings)", the type will be inferred as `string[]`.
+ * - If the description is exactly or starts with "string" or ends with "(string)", the type will be inferred as a `string`.
+ * - Otherwise, the type will be inferred as a `string`.
  */
 declare const specValueTemplates: {
     readonly number: readonly ["number", null, "(number)"];
     readonly boolean: readonly ["boolean", "true if ", "(boolean)"];
-    readonly 'number[]': readonly [null, "array of numbers", "(array of numbers)"];
-    readonly 'string[]': readonly ["array of strings", null, "(array of strings)"];
-    readonly string: readonly [null, "string", "(string)"];
+    readonly 'number[]': readonly ["array of numbers", "array of numbers", "(array of numbers)"];
+    readonly 'string[]': readonly ["array of strings", "array of strings", "(array of strings)"];
+    readonly string: readonly ["string", "string", "(string)"];
 };
 /**
  * Type inferred from {@link specValueTemplates}, for compile-time type safety.
@@ -198,14 +227,15 @@ declare const templatePrefix: <T extends SpecType>(value: T) => TemplatePrefix<T
 declare const templateSuffix: <T extends SpecType>(value: T) => TemplateSuffix<T>;
 /**
  * Actual templates used to match {@link Specs} item keys.
- * - If the key starts with "is" or ends with "Boolean", the type will be inferred as {@link boolean}.
+ * - If the key starts with "is" or ends with "Boolean", the type will be inferred as a `boolean`.
  *   NOTE: This will also be triggered on "normal" words starting with "is", e.g. "island", so avoid such words.
  * - If the key ends with "Array", the type will be inferred as `string[]`.
- * - If the key ends with "String", the type will be inferred as {@link string}.
- * - Otherwise, the type will be inferred as {@link string} or according to {@link specValueTemplates}, where applicable.
+ * - If the key ends with "String", the type will be inferred as a `string`.
+ * - Otherwise, the type will be inferred as a `string` or according to {@link specValueTemplates}, where applicable.
  */
 declare const specKeyTemplates: {
     readonly boolean: readonly [null, "is", "Boolean"];
+    readonly number: readonly [null, null, "Number"];
     readonly 'string[]': readonly [null, null, "Array"];
     readonly string: readonly [null, null, "String"];
 };
@@ -250,7 +280,7 @@ declare function castToSpecs<S extends Specs>(output: any, specs: S): MatchingOu
  * Tries to convert a value to a given type.
  *
  * @param value - The value to convert.
- * @param type - The type to convert the value to, expressed as a string from the `SpecTypes` type.
+ * @param type - The type to convert the value to, expressed as a {@link SpecTypeName}.
  * @returns The converted value, or undefined if the conversion failed.
  *
  * Note: We can convert most values to strings, and strings to most other types.
@@ -258,101 +288,347 @@ declare function castToSpecs<S extends Specs>(output: any, specs: S): MatchingOu
  */
 declare const tryConvert: <T extends keyof SpecTypes>(value: Exclude<undefined, SpecTypes[T]> | Exclude<null, SpecTypes[T]> | Exclude<string, SpecTypes[T]> | Exclude<number, SpecTypes[T]> | Exclude<false, SpecTypes[T]> | Exclude<true, SpecTypes[T]> | Exclude<vovas_utils.JsonableObject, SpecTypes[T]> | Exclude<Jsonable[], SpecTypes[T]>, type: T) => SpecTypes[T] | undefined;
 
-declare const matchesTemplate: <T extends EPSTemplate>(str: string, [exact, prefix, suffix]: T) => str is MatchesTemplate<T>;
-declare const typeBasedOnSpecValue: (specValue: string) => SpecType | undefined;
-declare const typeBasedOnSpecKey: (specKey: string) => SpecType | undefined;
-declare const typeBasedOnSpecEntry: <S extends Record<string, string>>(spec: S, key: keyof S) => SpecType | undefined;
+/**
+ * Checks if a string matches a given template, narrowing the type of the string accordingly.
+ * @template T Type of the template, extending {@link EPSTemplate}.
+ * @param {string} str String to check.
+ * @param {T} template Template to match against.
+ * @returns {boolean} True if the string matches the template, false otherwise.
+ */
+declare function matchesTemplate<T extends EPSTemplate>(str: string, [exact, prefix, suffix]: T): str is MatchesTemplate<T>;
+/**
+ * Function to determine the type of a specification based on its value.
+ * @param {string} specValue Value of the specification.
+ * @returns {SpecType | undefined} The type of the specification if it matches a known type, undefined otherwise.
+ */
+declare function typeBasedOnSpecValue(specValue: string): SpecType | undefined;
+/**
+ * Function to determine the type of a specification based on its key.
+ * @param {string} specKey Key of the specification.
+ * @returns {SpecType | undefined} The type of the specification if it matches a known type, undefined otherwise.
+ */
+declare function typeBasedOnSpecKey(specKey: string): SpecType | undefined;
+/**
+ * Function to determine the type of a specification entry based on its key and value.
+ * @template S Type of the specification, extending Record<string, string>.
+ * @param {S} spec The specification.
+ * @param {keyof S} key Key of the specification entry.
+ * @returns {SpecType | undefined} The type of the specification entry if it matches a known type, undefined otherwise.
+ */
+declare function typeBasedOnSpecEntry<S extends Record<string, string>>(spec: S, key: keyof S): SpecType | undefined;
 
-type GenerateExceptionType = 'noOutput' | 'outputNotJsonable' | 'outputNotJsonableObject' | 'specMismatch' | 'yamlError';
+/**
+ * Type for exceptions that can be generated.
+ */
+type GenerateExceptionType = 
+/**
+ * Indicates that no output was produced when one was expected.
+ */
+'noOutput'
+/**
+ * Indicates that the output could not be converted to JSON.
+ */
+ | 'outputNotJsonable'
+/**
+ * Indicates that the output is not a JSON object.
+ */
+ | 'outputNotJsonableObject'
+/**
+ * Indicates that the output does not match the expected specification (@see {@link Specs}).
+ */
+ | 'specMismatch'
+/**
+ * Indicates that an error occurred while processing YAML.
+ */
+ | 'yamlError';
+/**
+ * An exception that can be thrown while {@link generate}-ing.
+ */
 declare class GenerateException<T extends GenerateExceptionType> extends Error {
     readonly code: T;
     readonly meta?: any;
+    /**
+     * Creates a new {@link GenerateException}.
+     * @param code The code for the exception (one of {@link GenerateExceptionType}s).
+     * @param meta Additional metadata for the exception.
+     */
     constructor(code: T, meta?: any);
 }
-declare class SpecMismatchException<S extends Specs, HasKey extends boolean, K extends HasKey extends true ? Extract<keyof SpecTypeKeysDict<MatchingOutput<S>>, string> : undefined, T extends Jsonable> extends GenerateException<'specMismatch'> {
+/**
+ * An exception that can be thrown while {@link generate}-ing if the output does not match the expected {@link Specs}.
+ */
+declare class SpecMismatchException<S extends Specs, HasKey extends boolean, K extends HasKey extends true ? Extract<keyof SpecTypeNamesDict<MatchingOutput<S>>, string> : undefined, T extends Jsonable> extends GenerateException<'specMismatch'> {
     specs: S;
     key: K;
-    expectedType: HasKey extends true ? SpecTypeKeysDict<MatchingOutput<S>>[Extract<keyof SpecTypeKeysDict<MatchingOutput<S>>, string>] : SpecTypeKeysSingle<MatchingOutput<S>>;
+    expectedType: HasKey extends true ? SpecTypeNamesDict<MatchingOutput<S>>[Extract<keyof SpecTypeNamesDict<MatchingOutput<S>>, string>] : SpecTypeNamesSingle<MatchingOutput<S>>;
     actualValue: T;
-    constructor(specs: S, key: K, expectedType: HasKey extends true ? SpecTypeKeysDict<MatchingOutput<S>>[Extract<keyof SpecTypeKeysDict<MatchingOutput<S>>, string>] : SpecTypeKeysSingle<MatchingOutput<S>>, actualValue: T);
+    /**
+     * Creates a new {@link SpecMismatchException}.
+     * @param specs The {@link Specs} that were expected.
+     * @param key The key of the {@link Specs} for which the mismatch occurred, if any.
+     * @param expectedType The expected {@link SpecTypeName}.
+     * @param actualValue The actual value that was generated.
+     */
+    constructor(specs: S, key: K, expectedType: HasKey extends true ? SpecTypeNamesDict<MatchingOutput<S>>[Extract<keyof SpecTypeNamesDict<MatchingOutput<S>>, string>] : SpecTypeNamesSingle<MatchingOutput<S>>, actualValue: T);
 }
 
+/**
+ * Class representing metadata for the {@link generate} function.
+ */
 declare class GenerateMeta {
+    /** API related data. */
     api?: {
+        /** The request data sent to the API. */
         requestData?: ChatCompletionCreateParamsNonStreaming;
+        /** The response received from the API. */
         response?: ChatCompletion;
     };
+    /** Any error that occurred during the generation. */
     error?: GenerateException<GenerateExceptionType>;
 }
 
+/**
+ * Base options for the {@link generate} function.
+ */
 type GenerateOptionsBase = {
+    /** The API key for OpenAI. */
     openaiApiKey?: string;
+    /** Metadata for the generation. */
     meta?: GenerateMeta;
+    /** Description of the generation. */
     description?: string;
+    /** If true, debug information will be logged. */
     debug?: boolean;
+    /** If true, an error will be thrown if the generation fails. */
     throwOnFailure?: boolean;
-};
-type GenerateOptions<O extends Specs, I extends Inputs> = Partial<Pick<ChatCompletionCreateParamsBase, 'model' | 'temperature' | 'top_p' | 'max_tokens' | 'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'>> & GenerateOptionsBase & {
-    examples?: ((I extends string ? {
-        input: I;
-    } : I) & (MatchingOutput<O> extends string ? {
-        output: MatchingOutput<O>;
-    } : MatchingOutput<O>))[];
+} & Partial<Pick<ChatCompletionCreateParamsBase, 'model' | 'temperature' | 'top_p' | 'max_tokens' | 'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'>> & Omit<ClientOptions, 'apiKey'>;
+/**
+ * An example for the generate function.
+ * @template I Input type, extending {@link Inputs}.
+ * @template O Output type, extending {@link Specs}.
+ * If `I` or `O` extend a `string`, these will be converted to objects with keys `input` and `output` respectively; otherwise (i.e. if `I` or `O` are objects), these will be left as-is.
+ * In other words, the resulting type is an object with all the keys of `I` and `O` if those are objects, or with keys `input` and `output` if `I` or `O` are strings (respectively).
+ */
+type GenerateExample<I extends Inputs, O extends Specs> = (I extends string ? {
+    input: I;
+} : I) & (MatchingOutput<O> extends string ? {
+    output: MatchingOutput<O>;
+} : MatchingOutput<O>);
+/**
+ * Options for the {@link generate} function.
+ * @template O Type of the outputs, extending {@link Specs}.
+ * @template I Type of the inputs, extending {@link Inputs}.
+ * @see {@link ChatCompletionCreateParamsBase} for OpenAI-specific options.
+ * @see {@link GenerateOptionsBase} for base options.
+ * @see {@link GenerateExample} for examples.
+ */
+type GenerateOptions<O extends Specs, I extends Inputs> = GenerateOptionsBase & {
+    /** The examples to use for the generation. */
+    examples?: GenerateExample<I, O>[];
+    /** A function to post process the output of the generation. */
     postProcess?: (output: MatchingOutput<O>) => MatchingOutput<O>;
 };
 
+/**
+ * Defines the roles that can participate in a chat
+ */
 declare const chatRoles: readonly ["user", "assistant", "system"];
+/**
+ * Type definition for a chat role, based on {@link chatRoles}.
+ */
 type Role = typeof chatRoles[number];
+/**
+ * Creates a chat message with a specific role and content
+ * @param role Role of the message sender
+ * @param content Content of the message
+ * @return Created message as a {@link ChatCompletionMessageParam} (OpenAI API type)
+ */
 declare const chatMessage: (role: Role, content: string) => ChatCompletionMessageParam;
+/**
+ * Creates a chat object with methods for each role
+ * @return Created object with keys for each role (@see {@link chatRoles}) and values for each role's method, equivalent to {@link chatMessage}(role, content)
+ */
 declare const chat: Record<"user" | "assistant" | "system", (content: string) => ChatCompletionMessageParam>;
 
-declare const serialize: (obj: any, sentencify: boolean) => string;
-declare const composeChatPrompt: <O extends Specs, I extends Inputs>(outputs: O, inputs?: I | undefined, { description, examples }?: GenerateOptions<O, I>) => openai_resources_chat.ChatCompletionMessageParam[];
+/**
+ * Converts the first character of `string` to upper case and the remaining to lower case.
+ * @param str String to convert.
+ * @returns the converted string.
+ */
+declare function sentenceCase(str: string): string;
+/**
+ * Serializes the given object to a YAML string. If `sentencify` is true, it converts the keys to sentence case.
+ * @param obj Object to serialize.
+ * @param sentencify Whether to convert keys to sentence case (@see {@link sentenceCase}).
+ * @returns the resulting YAML string.
+ */
+declare function serialize(obj: any, sentencify: boolean): string;
+/**
+ * Returns a function that wraps a string with a given string.
+ * @param char String to wrap with.
+ * @returns Function that wraps a string with a given string.
+ *
+ * @example
+ * const wrapWithAsterisks = wrapWith('*');
+ * wrapWithAsterisks('hello'); // returns '*hello*'
+ */
+declare function wrapWith(char: string): (str: string) => string;
+/**
+ * Returns the chat prompt (array of {@link ChatCompletionMessageParam}s) allowing the model to generate the given `outputs` based on the given `inputs`.
+ *
+ * @template O Type of the outputs, extending {@link Specs}.
+ * @template I Type of the inputs, extending {@link Inputs}.
+ * @param outputs Outputs that the model should generate.
+ * @param inputs Inputs that the model should use to generate the outputs.
+ * @param {GenerateOptions<O, I>} options Options for generating the chat prompt.
+ * @param {string} options.description Description of the prompt.
+ * @param {GenerateExample<I, O>[]} options.examples Examples of inputs and outputs.
+ * @returns The chat prompt (array of {@link ChatCompletionMessageParam}s) allowing the model to generate the given `outputs` based on the given `inputs`.
+ */
+declare const composeChatPrompt: <O extends Specs, I extends Inputs>(outputs: O, inputs?: I | undefined, { description, examples }?: GenerateOptions<O, I>) => ChatCompletionMessageParam[];
 
-declare const prelimSpecs: {
-    readonly title: "string";
-    readonly intro: "string";
-    readonly outline: "array of strings, to be further expanded into sections";
-};
-type Prelims = MatchingOutput<typeof prelimSpecs>;
+/**
+ * Example function that generates article title, intro, and outline (array of section titles) for given topic.
+ * @param topic Topic to generate the article for.
+ * @returns An object with `title`, `intro`, and `outline` properties.
+ */
 declare const generatePrelims: (topic: string) => Promise<{
     readonly title: string;
     readonly intro: string;
-    readonly outline: string;
+    readonly outline: string[];
 } | undefined>;
 
-declare const getPostalCode: (location: string) => Promise<string | undefined>;
-declare const randomAddressLine: (location?: string) => Promise<string | undefined>;
-declare const babyNameIdeas: (request?: string) => Promise<string[] | undefined>;
-declare const businessIdeas: (request?: string) => Promise<string[] | undefined>;
-declare const swotAnalysis: (idea: string) => Promise<{
+/**
+ * Example function that generates a postal code for a given location.
+ * @param location The location to generate the postal code for.
+ * @returns A string representing the generated postal code.
+ * @example
+ * await getPostalCode('New York') // => '10001'
+ */
+declare function getPostalCode(location: string): Promise<string | undefined>;
+/**
+ * Example function that generates a random but plausible address line for a given location.
+ * @param location The location to generate the address line for. If no location is provided, a general address line is generated.
+ * @returns A string representing the generated address line.
+ * @example
+ * await randomAddressLine('Paris') // => '1 rue de Rivoli'
+ * await randomAddressLine() // => '1234 Elm Street'
+ */
+declare function randomAddressLine(location?: string): Promise<string | undefined>;
+/**
+ * Example function that generates baby name ideas based on a given request.
+ * @param request The request to generate the baby name ideas for. If no request is provided, general baby name ideas are generated.
+ * @returns An array of strings representing the generated baby name ideas.
+ * @example
+ * await babyNameIdeas('Something short but powerful for a boy') // => ['Max', 'Sam', 'Jake']
+ */
+declare function babyNameIdeas(request?: string): Promise<string[] | undefined>;
+/**
+ * Example function that generates business ideas based on a given request.
+ * @param request The request to generate the business ideas for. If no request is provided, general business ideas are generated.
+ * @returns An array of strings representing the generated business ideas.
+ * @example
+ * await businessIdeas('Related to the environment') // => ['Eco-friendly packaging', 'Solar power installation', 'Composting service']
+ */
+declare function businessIdeas(request?: string): Promise<string[] | undefined>;
+/**
+ * Example function that generates a SWOT analysis for a given idea.
+ * @param idea The idea to generate the SWOT analysis for.
+ * @returns An object with `strengths`, `weaknesses`, `opportunities`, and `threats` properties, each an array of strings representing the respective elements of the SWOT analysis.
+ * @example
+ * await swotAnalysis('Online tutoring service')
+ * // => {
+ * //   strengths: ['Flexible schedule', 'Low overhead'],
+ * //   weaknesses: ['Internet dependency', 'High competition'],
+ * //   opportunities: ['Increase in remote learning', 'Global market'],
+ * //   threats: ['Technical issues', 'Market saturation']
+ * // }
+ */
+declare function swotAnalysis(idea: string): Promise<{
     readonly strengths: string[];
     readonly weaknesses: string[];
     readonly opportunities: string[];
     readonly threats: string[];
 } | undefined>;
 
+/**
+ * Array of language codes representing the languages supported by the {@link translate} function.
+ * @example
+ * console.log(languages) // => ['en', 'fr', 'de', ...]
+ */
 declare const languages: readonly ["en", "fr", "de", "es", "it", "pt", "ru", "ja", "ko", "zh", "ar", "hi", "bn", "pa", "te", "mr", "ta", "ur", "gu", "kn", "ml", "sd", "or", "as", "bh", "ks", "ne", "si", "sa", "my", "km", "lo", "th", "lo", "vi", "id", "ms", "tl", "jv", "su", "tl", "ceb", "ny", "ha", "yo", "ig", "yo", "zu", "xh", "st", "tn", "sn", "so", "rw", "rn", "ny", "lg", "sw", "mg", "eo", "cy", "eu", "gl", "ca", "ast", "eu", "qu", "ay", "gn", "tt", "ug", "dz", "bo", "ii", "chr", "iu", "oj", "cr", "km", "mn", "yi", "he", "yi", "ur", "ar", "fa", "ps", "ks", "sd"];
+/**
+ * Type representing a language code from the {@link languages} array.
+ */
 type Language = (typeof languages)[number];
-declare const translate: <T extends ("en" | "fr" | "de" | "es" | "it" | "pt" | "ru" | "ja" | "ko" | "zh" | "ar" | "hi" | "bn" | "pa" | "te" | "mr" | "ta" | "ur" | "gu" | "kn" | "ml" | "sd" | "or" | "as" | "bh" | "ks" | "ne" | "si" | "sa" | "my" | "km" | "lo" | "th" | "vi" | "id" | "ms" | "tl" | "jv" | "su" | "ceb" | "ny" | "ha" | "yo" | "ig" | "zu" | "xh" | "st" | "tn" | "sn" | "so" | "rw" | "rn" | "lg" | "sw" | "mg" | "eo" | "cy" | "eu" | "gl" | "ca" | "ast" | "qu" | "ay" | "gn" | "tt" | "ug" | "dz" | "bo" | "ii" | "chr" | "iu" | "oj" | "cr" | "mn" | "yi" | "he" | "fa" | "ps")[]>(text: string, ...toLanguages: T) => Promise<MatchingOutput<T> | undefined>;
+/**
+ * Example function that translates a given text into the specified languages.
+ * @param text The text to translate.
+ * @param toLanguages The languages to translate the text into. Each language should be represented by its code from the {@link languages} array (type {@link Language}).
+ * @returns An object where each key is a language code and the corresponding value is the translation of the text into that language.
+ * @example
+ * await translate('Hello, world!', 'fr', 'de') // => { fr: 'Bonjour, monde!', de: 'Hallo, Welt!' }
+ */
+declare function translate<T extends Language[]>(text: string, ...toLanguages: T): Promise<MatchingOutput<T> | undefined>;
 
+/**
+ * Default metadata for the generate function.
+ */
 declare const defaultMeta: GenerateMeta;
+/**
+ * Default options for the generate function.
+ */
 declare const defaultOptions: GenerateOptionsBase;
+/**
+ * Function to add default options to the generate function.
+ * @param options - The options to add.
+ */
 declare function addDefaultOptions(options: GenerateOptionsBase): void;
+/**
+ * Generates, using OpenAI's API, data according to given output specifications and inputs.
+ * @template O Type of the outputs, extending {@link Specs}.
+ * @template I Type of the inputs, extending {@link Inputs}.
+ * @param {O} outputSpecs Output specifications for the generation.
+ * @param {I} [inputs] Inputs for the generation.
+ * @param {GenerateOptions<O, I>} [options] Options for the generation.
+ * @returns {Promise<MatchingOutput<O> | undefined>} Generated data according to the output specifications, or undefined if the generation failed and `options.throwOnFailure` is false.
+ * @throws {Error} if an error occurred and `options.throwOnFailure` is true.
+ */
 declare function generate<O extends Specs, I extends Inputs>(outputSpecs: O, inputs?: I, options?: GenerateOptions<O, I>): Promise<MatchingOutput<O> | undefined>;
 
-type GeneratorConfig<O extends Specs, I extends Inputs> = GenerateOptions<O, I> & {
-    outputSpecs: O;
-};
+/**
+ * Class representing a Generator. This can be a handier alternative to the {@link generate} function if you want to reuse the same generation configuration (e.g. OpenAI API key, output specifications, etc.) from multiple places.
+ * @template O Type of the outputs, extending {@link Specs}.
+ * @template I Type of the inputs, extending {@link Inputs}.
+ */
 declare class Generator<O extends Specs, I extends Inputs> {
-    config: GeneratorConfig<O, I>;
-    constructor(config: GeneratorConfig<O, I>);
+    outputSpecs: O;
+    options?: GenerateOptions<O, I> | undefined;
+    /**
+     * Creates a new Generator.
+     * @param {GeneratorConfig<O, I>} config Configuration for the Generator.
+     */
+    constructor(outputSpecs: O, options?: GenerateOptions<O, I> | undefined);
+    /**
+     * Generates data for the given inputs using the Generator's configuration. @see {@link generate} for more information.
+     * @param {I} inputs Inputs for the generation.
+     * @returns {Promise<MatchingOutput<O> | undefined>} Generated data according to the output specifications, or undefined if the generation failed and `options.throwOnFailure` is false.
+     * @throws {Error} if an error occurred and `options.throwOnFailure` is true.
+     */
     generateFor(inputs: I): Promise<MatchingOutput<O> | undefined>;
 }
 
-declare const improve: <O extends SpecType | Record<string, SpecType>>(output: O, requestToImprove: string, options: GenerateOptions<MatchingSpecs<O>, {
+/**
+ * Improves the output of the {@link generate} function by providing a request to improve the output.
+ *
+ * @param output Current output.
+ * @param requestToImprove Request to improve the output, as a free-form string (e.g. "Make the output more human-readable")
+ * @param options Options for the generation.
+ * @returns The improved output.
+ */
+declare const improve: <O extends SpecTypeOrDict>(output: O, requestToImprove: string, options: GenerateOptions<MatchingSpecs<O>, {
     current: string;
     requestToImprove: string;
 }>) => Promise<MatchingOutput<MatchingSpecs<O>> | undefined>;
 
-export { EPSTemplate, GenerateException, GenerateExceptionType, GenerateMeta, GenerateOptions, GenerateOptionsBase, Generator, GeneratorConfig, InferTypeFromKey, InferTypeFromSpecEntry, InferTypeFromValue, Inputs, Language, MatchesTemplate, MatchingOutput, MatchingOutputTypeKeys, MatchingSpecs, Prelims, Role, SpecKeyTemplates, SpecMismatchException, SpecType, SpecTypeKeys, SpecTypeKeysDict, SpecTypeKeysSingle, SpecTypeName, SpecTypeOrDict, SpecTypes, SpecValueTemplates, Specs, TemplateExactMatch, TemplateFor, TemplatePrefix, TemplateSuffix, addDefaultOptions, babyNameIdeas, businessIdeas, castToSpecs, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsDict, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue };
+export { EPSTemplate, GenerateExample, GenerateException, GenerateExceptionType, GenerateMeta, GenerateOptions, GenerateOptionsBase, Generator, InferTypeFromKey, InferTypeFromSpecEntry, InferTypeFromValue, Inputs, Language, MatchesTemplate, MatchingOutput, MatchingOutputTypeKeys, MatchingSpecs, Role, SpecKeyTemplates, SpecMismatchException, SpecType, SpecTypeName, SpecTypeNames, SpecTypeNamesDict, SpecTypeNamesSingle, SpecTypeOrDict, SpecTypes, SpecValueTemplates, Specs, TemplateExactMatch, TemplateFor, TemplatePrefix, TemplateSuffix, addDefaultOptions, babyNameIdeas, businessIdeas, castToSpecs, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, sentenceCase, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsDict, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, wrapWith };

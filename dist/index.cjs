@@ -12,6 +12,11 @@ const ___default = /*#__PURE__*/_interopDefaultCompat(_);
 const OpenAI__default = /*#__PURE__*/_interopDefaultCompat(OpenAI);
 
 class GenerateException extends Error {
+  /**
+   * Creates a new {@link GenerateException}.
+   * @param code The code for the exception (one of {@link GenerateExceptionType}s).
+   * @param meta Additional metadata for the exception.
+   */
   constructor(code, meta) {
     super(`${code}:
 ${yaml.dump(meta)}`);
@@ -20,6 +25,13 @@ ${yaml.dump(meta)}`);
   }
 }
 class SpecMismatchException extends GenerateException {
+  /**
+   * Creates a new {@link SpecMismatchException}.
+   * @param specs The {@link Specs} that were expected.
+   * @param key The key of the {@link Specs} for which the mismatch occurred, if any.
+   * @param expectedType The expected {@link SpecTypeName}.
+   * @param actualValue The actual value that was generated.
+   */
   constructor(specs, key, expectedType, actualValue) {
     super("specMismatch", { specs, key, expectedType, actualValue });
     this.specs = specs;
@@ -42,14 +54,20 @@ const chat = chatRoles.reduce((acc, role) => ({
   [role]: (content) => chatMessage(role, content)
 }), {});
 
-const sentenceCase = (str) => ___default.upperFirst(___default.toLower(___default.startCase(str)));
-const serialize = (obj, sentencify) => yaml__default.dump(
-  sentencify ? Array.isArray(obj) ? obj.map(sentenceCase) : typeof obj === "string" ? sentenceCase(obj) : ___default.mapKeys(obj, (v, k) => sentenceCase(k)) : obj
-).trim();
-const envelope = (char) => (str) => `${char}${str}${char}`;
+function sentenceCase(str) {
+  return ___default.upperFirst(___default.toLower(___default.startCase(str)));
+}
+function serialize(obj, sentencify) {
+  return yaml__default.dump(
+    sentencify ? Array.isArray(obj) ? obj.map(sentenceCase) : typeof obj === "string" ? sentenceCase(obj) : ___default.mapKeys(obj, (v, k) => sentenceCase(k)) : obj
+  ).trim();
+}
+function wrapWith(char) {
+  return (str) => `${char}${str}${char}`;
+}
 const composeChatPrompt = (outputs, inputs, { description, examples } = {}) => {
   const outputKeys = Array.isArray(outputs) ? outputs : typeof outputs === "string" ? ["output"] : Object.keys(outputs);
-  const randomSeed = () => ({ seed: ___default.random(1e3, 9999) });
+  const randomSeed = () => ({ randomSeedDoNotMention: ___default.random(1e3, 9999) });
   return [
     chat.system(description ?? "You come up with (artificially generate) arbitrary data based on arbitrary inputs, using the best of your AI abilities."),
     chat.system(`What the user wants to come up with:
@@ -69,31 +87,37 @@ ${serialize(
         inputs ? typeof inputs === "string" ? { input: inputs } : inputs : randomSeed(),
         true
       )}`),
-      // chat.system(`Come up with an output based on the input provided by the user as a YAML object with the following keys: ${
-      //   outputKeys.map(envelope('`')).join(', ')
-      // }. Provide just the YAML object, without any enclosing text or formatting. Do not forget to enclose any strings containing colons in quotes (per YAML syntax).`),
-      chat.system(`Come up with an output based on the input provided by the user as a JSON object with the following keys: ${outputKeys.map(envelope("`")).join(", ")}. Provide just the JSON object, without any indents, enclosing text or formatting.`)
+      chat.system(`Come up with an output based on the input provided by the user as a JSON object with the following keys: ${outputKeys.map(wrapWith("`")).join(", ")}. Provide just the JSON object, without any indents, enclosing text or formatting.`)
     ]
   ];
 };
 
-const prelimSpecs = {
-  title: "string",
-  intro: "string",
-  outline: "array of strings, to be further expanded into sections"
-};
-const generatePrelims = (topic) => generate(prelimSpecs, { topic });
+const generatePrelims = (topic) => generate({
+  title: "article title",
+  intro: "article intro",
+  outline: "section titles (array of strings)"
+}, { topic });
 
-const getPostalCode = (location) => generate("Postal code", location);
-const randomAddressLine = (location) => generate("Random but plausible address line", location);
-const babyNameIdeas = (request) => generate("Baby name ideas (array of strings)", request);
-const businessIdeas = (request) => generate("Business ideas (array of strings)", request);
-const swotAnalysis = (idea) => generate({
-  strengths: "array of strings",
-  weaknesses: "array of strings",
-  opportunities: "array of strings",
-  threats: "array of strings"
-}, { idea });
+function getPostalCode(location) {
+  return generate("Postal code", location);
+}
+function randomAddressLine(location) {
+  return generate("Random but plausible address line", location);
+}
+function babyNameIdeas(request) {
+  return generate("Baby name ideas (array of strings)", request);
+}
+function businessIdeas(request) {
+  return generate("Business ideas (array of strings)", request);
+}
+function swotAnalysis(idea) {
+  return generate({
+    strengths: "array of strings",
+    weaknesses: "array of strings",
+    opportunities: "array of strings",
+    threats: "array of strings"
+  }, { idea });
+}
 
 function matchingOutputTypeKeys(specs) {
   return typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : vovasUtils.asTypeguard(vovasUtils.is.array)(specs) ? ___default.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : vovasUtils.is.jsonableObject(specs) ? ___default.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
@@ -107,9 +131,9 @@ const specTypeKeysIsDict = (value) => typeof value === "object";
 const specValueTemplates = {
   number: ["number", null, "(number)"],
   boolean: ["boolean", "true if ", "(boolean)"],
-  "number[]": [null, "array of numbers", "(array of numbers)"],
-  "string[]": ["array of strings", null, "(array of strings)"],
-  string: [null, "string", "(string)"]
+  "number[]": ["array of numbers", "array of numbers", "(array of numbers)"],
+  "string[]": ["array of strings", "array of strings", "(array of strings)"],
+  string: ["string", "string", "(string)"]
 };
 const templateFor = (value) => specValueTemplates[specTypeKey(value)];
 const templateExactMatch = (value) => templateFor(value)[0];
@@ -120,6 +144,7 @@ const specKeyTemplates = {
   // Note: This will also be triggered on "normal" words starting with "is", e.g. "island".
   // TODO: Think of a different way to do this (require an underscore prefix, i.e. "is_paid" instead of "isPaid"?)
   // TODO: Make values take precedence over keys to override this by explicitly specifying a type in the description (e.g. { island: 'string' }})
+  number: [null, null, "Number"],
   "string[]": [null, null, "Array"],
   string: [null, null, "String"]
 };
@@ -145,10 +170,18 @@ const tryConvert = (value, type) => type === "string" ? vovasUtils.check(value).
 const findKey = (obj, predicate) => Object.keys(obj).find((key) => predicate(obj[key]));
 const endsWith = (str, suffix) => str.endsWith(suffix);
 const startsWith = (str, prefix) => str.startsWith(prefix);
-const matchesTemplate = (str, [exact, prefix, suffix]) => str === exact || !!prefix && startsWith(str, prefix) || !!suffix && endsWith(str, suffix);
-const typeBasedOnSpecValue = (specValue) => findKey(specValueTemplates, (template) => matchesTemplate(specValue, template));
-const typeBasedOnSpecKey = (specKey) => findKey(specKeyTemplates, (template) => matchesTemplate(specKey, template));
-const typeBasedOnSpecEntry = (spec, key) => typeBasedOnSpecKey(key) || typeBasedOnSpecValue(spec[key]);
+function matchesTemplate(str, [exact, prefix, suffix]) {
+  return str === exact || !!prefix && startsWith(str, prefix) || !!suffix && endsWith(str, suffix);
+}
+function typeBasedOnSpecValue(specValue) {
+  return findKey(specValueTemplates, (template) => matchesTemplate(specValue, template));
+}
+function typeBasedOnSpecKey(specKey) {
+  return findKey(specKeyTemplates, (template) => matchesTemplate(specKey, template));
+}
+function typeBasedOnSpecEntry(spec, key) {
+  return typeBasedOnSpecKey(key) || typeBasedOnSpecValue(spec[key]);
+}
 
 function isNotSameType(value, type) {
   return specTypeKey(value) !== type;
@@ -200,9 +233,21 @@ async function generate(outputSpecs, inputs, options) {
     ...defaultOptions,
     ...options
   };
+  const openaiRequestOptionKeys = [
+    "model",
+    "temperature",
+    "top_p",
+    "max_tokens",
+    "presence_penalty",
+    "frequency_penalty",
+    "logit_bias",
+    "user"
+  ];
+  const openaiRequestOptions = ___default.pick(openaiOptions, openaiRequestOptionKeys);
+  const openaiConfigOptions = ___default.omit(openaiOptions, openaiRequestOptionKeys);
   const openai = new OpenAI__default({
     apiKey: openaiApiKey ?? process.env.OPENAI_API_KEY ?? vovasUtils.$throw("OpenAI API key is required either as `options.openaiApiKey` or as `process.env.OPENAI_API_KEY`"),
-    dangerouslyAllowBrowser: true
+    ...openaiConfigOptions
   });
   const messages = composeChatPrompt(
     outputSpecs,
@@ -213,7 +258,7 @@ async function generate(outputSpecs, inputs, options) {
     console.log(yaml__default.dump({ messages }));
   const requestData = {
     model: "gpt-3.5-turbo",
-    ...openaiOptions,
+    ...openaiRequestOptions,
     messages
   };
   const response = await openai.chat.completions.create(requestData);
@@ -330,14 +375,27 @@ const languages = [
   "ks",
   "sd"
 ];
-const translate = (text, ...toLanguages) => generate(toLanguages, text);
+function translate(text, ...toLanguages) {
+  return generate(toLanguages, text);
+}
 
 class Generator {
-  constructor(config) {
-    this.config = config;
+  /**
+   * Creates a new Generator.
+   * @param {GeneratorConfig<O, I>} config Configuration for the Generator.
+   */
+  constructor(outputSpecs, options) {
+    this.outputSpecs = outputSpecs;
+    this.options = options;
   }
+  /**
+   * Generates data for the given inputs using the Generator's configuration. @see {@link generate} for more information.
+   * @param {I} inputs Inputs for the generation.
+   * @returns {Promise<MatchingOutput<O> | undefined>} Generated data according to the output specifications, or undefined if the generation failed and `options.throwOnFailure` is false.
+   * @throws {Error} if an error occurred and `options.throwOnFailure` is true.
+   */
   generateFor(inputs) {
-    const { outputSpecs, ...options } = this.config;
+    const { outputSpecs, options } = this;
     return generate(outputSpecs, inputs, options);
   }
 }
@@ -368,6 +426,7 @@ exports.matchesTemplate = matchesTemplate;
 exports.matchingOutputTypeKeys = matchingOutputTypeKeys;
 exports.matchingSpecs = matchingSpecs;
 exports.randomAddressLine = randomAddressLine;
+exports.sentenceCase = sentenceCase;
 exports.serialize = serialize;
 exports.specKeyTemplates = specKeyTemplates;
 exports.specTypeKey = specTypeKey;
@@ -383,3 +442,4 @@ exports.tryConvert = tryConvert;
 exports.typeBasedOnSpecEntry = typeBasedOnSpecEntry;
 exports.typeBasedOnSpecKey = typeBasedOnSpecKey;
 exports.typeBasedOnSpecValue = typeBasedOnSpecValue;
+exports.wrapWith = wrapWith;
