@@ -30,12 +30,12 @@ type TestMatchesTemplate = MatchesTemplate<['boolean', 'true if ', '(boolean)']>
 
 /**
  * Actual templates used to match {@link Specs} item values (i.e. descriptions).
- * - If the description is exactly "number" or ends with "(number)", the type will be inferred as {@link number}.
- * - If the description is exactly "boolean" or starts with "true if " or ends with "(boolean)", the type will be inferred as {@link boolean}.
+ * - If the description is exactly "number" or ends with "(number)", the type will be inferred as a `number`.
+ * - If the description is exactly "boolean" or starts with "true if " or ends with "(boolean)", the type will be inferred as a `boolean`.
  * - If the description is exactly or starts with "array of numbers" or ends with "(array of numbers)", the type will be inferred as `number[]`.
- * - If the description is exactly "array of strings" or ends with "(array of strings)", the type will be inferred as `string[]`.
- * - If the description is exactly or starts with "string" or ends with "(string)", the type will be inferred as {@link string}.
- * - Otherwise, the type will be inferred as {@link string}.
+ * - If the description is exactly or starts with "array of strings" or ends with "(array of strings)", the type will be inferred as `string[]`.
+ * - If the description is exactly or starts with "string" or ends with "(string)", the type will be inferred as a `string`.
+ * - Otherwise, the type will be inferred as a `string`.
  */
 export const specValueTemplates = {
   number: ['number', null, '(number)'],
@@ -110,11 +110,11 @@ type TestTemplateSuffix = TemplateSuffix<string[]>; // expected: "(array of stri
 
 /**
  * Actual templates used to match {@link Specs} item keys.
- * - If the key starts with "is" or ends with "Boolean", the type will be inferred as {@link boolean}.
+ * - If the key starts with "is" or ends with "Boolean", the type will be inferred as a `boolean`.
  *   NOTE: This will also be triggered on "normal" words starting with "is", e.g. "island", so avoid such words.
  * - If the key ends with "Array", the type will be inferred as `string[]`.
- * - If the key ends with "String", the type will be inferred as {@link string}.
- * - Otherwise, the type will be inferred as {@link string} or according to {@link specValueTemplates}, where applicable.
+ * - If the key ends with "String", the type will be inferred as a `string`.
+ * - Otherwise, the type will be inferred as a `string` or according to {@link specValueTemplates}, where applicable.
  */
 export const specKeyTemplates = {
   boolean: [null, 'is', 'Boolean'],
