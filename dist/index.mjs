@@ -1,7 +1,7 @@
 import yaml, { dump } from 'js-yaml';
 import _ from 'lodash';
 import OpenAI from 'openai';
-import { asTypeguard, is, $throw, shouldNotBe, check, give, mutate } from 'vovas-utils';
+import { asTypeguard, is, $throw, check, give, mutate } from 'vovas-utils';
 
 class GenerateException extends Error {
   constructor(code, meta) {
@@ -87,19 +87,20 @@ const swotAnalysis = (idea) => generate({
   threats: "array of strings"
 }, { idea });
 
-const matchingOutputTypeKeys = (specs) => typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : asTypeguard(is.array)(specs) ? _.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : is.jsonableObject(specs) ? _.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
+function matchingOutputTypeKeys(specs) {
+  return typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : asTypeguard(is.array)(specs) ? _.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : is.jsonableObject(specs) ? _.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
+}
 
 const matchingSpecs = (output) => typeof output === "object" ? _.mapValues(output, (value) => templateSuffix(value) ?? "string") : templateSuffix(output) ?? "string";
 
-const specTypeKey = (value) => is.number(value) ? "number" : is.boolean(value) ? "boolean" : is.string(value) ? "string" : is.array(value) ? _.every(value, is.number) ? "number[]" : _.every(value, is.string) ? "string[]" : $throw("Array items must be either all numbers or all strings") : shouldNotBe(value);
-const specTypeKeysIsObject = (value) => typeof value === "object";
+const specTypeKey = (value) => is.number(value) ? "number" : is.boolean(value) ? "boolean" : is.string(value) ? "string" : is.array(value) ? _.every(value, is.number) ? "number[]" : _.every(value, is.string) ? "string[]" : $throw("Array items must be either all numbers or all strings") : $throw("Unsupported value type: " + typeof value);
+const specTypeKeysIsDict = (value) => typeof value === "object";
 
 const specValueTemplates = {
   number: ["number", null, "(number)"],
   boolean: ["boolean", "true if ", "(boolean)"],
   "number[]": [null, "array of numbers", "(array of numbers)"],
-  "string[]": ["array of strings", "list of", "(array of strings)"],
-  // (We had to use "list of" instead of "array of" because then it would work for "array of numbers" as well, as it's not possible to define a TypeScript type that would allow us to distinguish between the two.)
+  "string[]": ["array of strings", null, "(array of strings)"],
   string: [null, "string", "(string)"]
 };
 const templateFor = (value) => specValueTemplates[specTypeKey(value)];
@@ -110,6 +111,7 @@ const specKeyTemplates = {
   boolean: [null, "is", "Boolean"],
   // Note: This will also be triggered on "normal" words starting with "is", e.g. "island".
   // TODO: Think of a different way to do this (require an underscore prefix, i.e. "is_paid" instead of "isPaid"?)
+  // TODO: Make values take precedence over keys to override this by explicitly specifying a type in the description (e.g. { island: 'string' }})
   "string[]": [null, null, "Array"],
   string: [null, null, "String"]
 };
@@ -132,32 +134,6 @@ const tryConvert = (value, type) => type === "string" ? check(value).if(
   }).else((type2) => $throw(`Unexpected type: ${type2}`))
 ).else(give.undefined);
 
-const join = (s1, s2) => `${s1}${s2}`;
-const typeOf = (value) => {
-  const type = typeof value;
-  switch (type) {
-    case "number":
-    case "boolean":
-    case "string":
-      return type;
-    case "object":
-      if (Array.isArray(value)) {
-        let detectedType;
-        for (const item of value) {
-          const itemType = typeOf(item);
-          if (!detectedType) {
-            detectedType = itemType;
-          } else if (itemType !== detectedType) {
-            return;
-          }
-        }
-        if (detectedType === "string" || detectedType === "number") {
-          return join(detectedType, "[]");
-        }
-      }
-  }
-};
-
 const findKey = (obj, predicate) => Object.keys(obj).find((key) => predicate(obj[key]));
 const endsWith = (str, suffix) => str.endsWith(suffix);
 const startsWith = (str, prefix) => str.startsWith(prefix);
@@ -166,12 +142,14 @@ const typeBasedOnSpecValue = (specValue) => findKey(specValueTemplates, (templat
 const typeBasedOnSpecKey = (specKey) => findKey(specKeyTemplates, (template) => matchesTemplate(specKey, template));
 const typeBasedOnSpecEntry = (spec, key) => typeBasedOnSpecKey(key) || typeBasedOnSpecValue(spec[key]);
 
-const isNotSameType = (value, type) => typeOf(value) !== type;
-function makeOutputMatchSpecs(output, specs) {
+function isNotSameType(value, type) {
+  return specTypeKey(value) !== type;
+}
+function castToSpecs(output, specs) {
   if (!is.jsonable(output))
     throw new GenerateException("outputNotJsonable", { output });
   const expectedTypes = matchingOutputTypeKeys(specs);
-  if (specTypeKeysIsObject(expectedTypes)) {
+  if (specTypeKeysIsDict(expectedTypes)) {
     if (!is.jsonableObject(output))
       throw new GenerateException("outputNotJsonableObject", { output });
     for (const key in expectedTypes) {
@@ -240,7 +218,7 @@ async function generate(outputSpecs, inputs, options) {
     let result = JSON.parse(content ?? $throw(new GenerateException("noOutput")));
     if (typeof outputSpecs === "string")
       result = result["output"];
-    let matchingResult = makeOutputMatchSpecs(result, outputSpecs);
+    let matchingResult = castToSpecs(result, outputSpecs);
     if (postProcess)
       matchingResult = postProcess(matchingResult);
     return matchingResult;
@@ -358,4 +336,4 @@ class Generator {
 
 const improve = (output, requestToImprove, options) => generate(matchingSpecs(output), { current: yaml.dump(output), requestToImprove }, options);
 
-export { GenerateException, GenerateMeta, Generator, SpecMismatchException, addDefaultOptions, babyNameIdeas, businessIdeas, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, makeOutputMatchSpecs, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsObject, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, typeOf };
+export { GenerateException, GenerateMeta, Generator, SpecMismatchException, addDefaultOptions, babyNameIdeas, businessIdeas, castToSpecs, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsDict, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue };

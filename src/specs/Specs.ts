@@ -74,21 +74,33 @@ export type TemplateSuffix<T extends SpecType> = SpecValueTemplates[SpecTypeName
 
 /**
  * Infers the {@link specValueTemplates} entry to use for a given value (of a supported type).
+ * 
+ * @param value Value to infer the {@link specValueTemplates} entry for.
+ * @returns The {@link specValueTemplates} entry to use for the given value.
  */
 export const templateFor = <T extends SpecType>(value: T) => specValueTemplates[specTypeKey(value)] as TemplateFor<T>;
 
 /**
  * Infers the exact match part of the {@link specValueTemplates} entry to use for a given value (of a supported type).
+ * 
+ * @param value Value to infer the exact match part of the {@link specValueTemplates} entry for.
+ * @returns The exact match part of the {@link specValueTemplates} entry to use for the given value.
  */
 export const templateExactMatch = <T extends SpecType>(value: T) => templateFor(value)[0] as TemplateExactMatch<T>;
 
 /**
  * Infers the prefix part of the {@link specValueTemplates} entry to use for a given value (of a supported type).
+ * 
+ * @param value Value to infer the prefix part of the {@link specValueTemplates} entry for.
+ * @returns The prefix part of the {@link specValueTemplates} entry to use for the given value.
  */
 export const templatePrefix = <T extends SpecType>(value: T) => templateFor(value)[1] as TemplatePrefix<T>;
 
 /**
  * Infers the suffix part of the {@link specValueTemplates} entry to use for a given value (of a supported type).
+ * 
+ * @param value Value to infer the suffix part of the {@link specValueTemplates} entry for.
+ * @returns The suffix part of the {@link specValueTemplates} entry to use for the given value.
  */
 export const templateSuffix = <T extends SpecType>(value: T) => templateFor(value)[2] as TemplateSuffix<T>;
 

@@ -5,5 +5,4 @@ export * from './SpecTypes';
 export * from './Specs';
 export * from './castToSpecs';
 export * from './tryConvert';
-export * from './typeOf';
 export * from './utils';

@@ -95,19 +95,20 @@ const swotAnalysis = (idea) => generate({
   threats: "array of strings"
 }, { idea });
 
-const matchingOutputTypeKeys = (specs) => typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : vovasUtils.asTypeguard(vovasUtils.is.array)(specs) ? ___default.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : vovasUtils.is.jsonableObject(specs) ? ___default.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
+function matchingOutputTypeKeys(specs) {
+  return typeof specs === "string" ? typeBasedOnSpecValue(specs) ?? "string" : vovasUtils.asTypeguard(vovasUtils.is.array)(specs) ? ___default.zipObject(specs, specs.map((key) => typeBasedOnSpecKey(key) ?? "string")) : vovasUtils.is.jsonableObject(specs) ? ___default.mapValues(specs, (value, key) => typeBasedOnSpecEntry(specs, key) ?? "string") : "string";
+}
 
 const matchingSpecs = (output) => typeof output === "object" ? ___default.mapValues(output, (value) => templateSuffix(value) ?? "string") : templateSuffix(output) ?? "string";
 
-const specTypeKey = (value) => vovasUtils.is.number(value) ? "number" : vovasUtils.is.boolean(value) ? "boolean" : vovasUtils.is.string(value) ? "string" : vovasUtils.is.array(value) ? ___default.every(value, vovasUtils.is.number) ? "number[]" : ___default.every(value, vovasUtils.is.string) ? "string[]" : vovasUtils.$throw("Array items must be either all numbers or all strings") : vovasUtils.shouldNotBe(value);
-const specTypeKeysIsObject = (value) => typeof value === "object";
+const specTypeKey = (value) => vovasUtils.is.number(value) ? "number" : vovasUtils.is.boolean(value) ? "boolean" : vovasUtils.is.string(value) ? "string" : vovasUtils.is.array(value) ? ___default.every(value, vovasUtils.is.number) ? "number[]" : ___default.every(value, vovasUtils.is.string) ? "string[]" : vovasUtils.$throw("Array items must be either all numbers or all strings") : vovasUtils.$throw("Unsupported value type: " + typeof value);
+const specTypeKeysIsDict = (value) => typeof value === "object";
 
 const specValueTemplates = {
   number: ["number", null, "(number)"],
   boolean: ["boolean", "true if ", "(boolean)"],
   "number[]": [null, "array of numbers", "(array of numbers)"],
-  "string[]": ["array of strings", "list of", "(array of strings)"],
-  // (We had to use "list of" instead of "array of" because then it would work for "array of numbers" as well, as it's not possible to define a TypeScript type that would allow us to distinguish between the two.)
+  "string[]": ["array of strings", null, "(array of strings)"],
   string: [null, "string", "(string)"]
 };
 const templateFor = (value) => specValueTemplates[specTypeKey(value)];
@@ -118,6 +119,7 @@ const specKeyTemplates = {
   boolean: [null, "is", "Boolean"],
   // Note: This will also be triggered on "normal" words starting with "is", e.g. "island".
   // TODO: Think of a different way to do this (require an underscore prefix, i.e. "is_paid" instead of "isPaid"?)
+  // TODO: Make values take precedence over keys to override this by explicitly specifying a type in the description (e.g. { island: 'string' }})
   "string[]": [null, null, "Array"],
   string: [null, null, "String"]
 };
@@ -140,32 +142,6 @@ const tryConvert = (value, type) => type === "string" ? vovasUtils.check(value).
   }).else((type2) => vovasUtils.$throw(`Unexpected type: ${type2}`))
 ).else(vovasUtils.give.undefined);
 
-const join = (s1, s2) => `${s1}${s2}`;
-const typeOf = (value) => {
-  const type = typeof value;
-  switch (type) {
-    case "number":
-    case "boolean":
-    case "string":
-      return type;
-    case "object":
-      if (Array.isArray(value)) {
-        let detectedType;
-        for (const item of value) {
-          const itemType = typeOf(item);
-          if (!detectedType) {
-            detectedType = itemType;
-          } else if (itemType !== detectedType) {
-            return;
-          }
-        }
-        if (detectedType === "string" || detectedType === "number") {
-          return join(detectedType, "[]");
-        }
-      }
-  }
-};
-
 const findKey = (obj, predicate) => Object.keys(obj).find((key) => predicate(obj[key]));
 const endsWith = (str, suffix) => str.endsWith(suffix);
 const startsWith = (str, prefix) => str.startsWith(prefix);
@@ -174,12 +150,14 @@ const typeBasedOnSpecValue = (specValue) => findKey(specValueTemplates, (templat
 const typeBasedOnSpecKey = (specKey) => findKey(specKeyTemplates, (template) => matchesTemplate(specKey, template));
 const typeBasedOnSpecEntry = (spec, key) => typeBasedOnSpecKey(key) || typeBasedOnSpecValue(spec[key]);
 
-const isNotSameType = (value, type) => typeOf(value) !== type;
-function makeOutputMatchSpecs(output, specs) {
+function isNotSameType(value, type) {
+  return specTypeKey(value) !== type;
+}
+function castToSpecs(output, specs) {
   if (!vovasUtils.is.jsonable(output))
     throw new GenerateException("outputNotJsonable", { output });
   const expectedTypes = matchingOutputTypeKeys(specs);
-  if (specTypeKeysIsObject(expectedTypes)) {
+  if (specTypeKeysIsDict(expectedTypes)) {
     if (!vovasUtils.is.jsonableObject(output))
       throw new GenerateException("outputNotJsonableObject", { output });
     for (const key in expectedTypes) {
@@ -248,7 +226,7 @@ async function generate(outputSpecs, inputs, options) {
     let result = JSON.parse(content ?? vovasUtils.$throw(new GenerateException("noOutput")));
     if (typeof outputSpecs === "string")
       result = result["output"];
-    let matchingResult = makeOutputMatchSpecs(result, outputSpecs);
+    let matchingResult = castToSpecs(result, outputSpecs);
     if (postProcess)
       matchingResult = postProcess(matchingResult);
     return matchingResult;
@@ -373,6 +351,7 @@ exports.SpecMismatchException = SpecMismatchException;
 exports.addDefaultOptions = addDefaultOptions;
 exports.babyNameIdeas = babyNameIdeas;
 exports.businessIdeas = businessIdeas;
+exports.castToSpecs = castToSpecs;
 exports.chat = chat;
 exports.chatMessage = chatMessage;
 exports.chatRoles = chatRoles;
@@ -385,7 +364,6 @@ exports.getPostalCode = getPostalCode;
 exports.improve = improve;
 exports.isNotSameType = isNotSameType;
 exports.languages = languages;
-exports.makeOutputMatchSpecs = makeOutputMatchSpecs;
 exports.matchesTemplate = matchesTemplate;
 exports.matchingOutputTypeKeys = matchingOutputTypeKeys;
 exports.matchingSpecs = matchingSpecs;
@@ -393,7 +371,7 @@ exports.randomAddressLine = randomAddressLine;
 exports.serialize = serialize;
 exports.specKeyTemplates = specKeyTemplates;
 exports.specTypeKey = specTypeKey;
-exports.specTypeKeysIsObject = specTypeKeysIsObject;
+exports.specTypeKeysIsDict = specTypeKeysIsDict;
 exports.specValueTemplates = specValueTemplates;
 exports.swotAnalysis = swotAnalysis;
 exports.templateExactMatch = templateExactMatch;
@@ -405,4 +383,3 @@ exports.tryConvert = tryConvert;
 exports.typeBasedOnSpecEntry = typeBasedOnSpecEntry;
 exports.typeBasedOnSpecKey = typeBasedOnSpecKey;
 exports.typeBasedOnSpecValue = typeBasedOnSpecValue;
-exports.typeOf = typeOf;

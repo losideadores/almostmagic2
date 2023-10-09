@@ -1,6 +1,6 @@
 import { Jsonable, is } from "vovas-utils";
-import { MatchingOutput, SpecTypeName, SpecTypes, Specs, matchingOutputTypeKeys, specTypeKeysIsDict, tryConvert, typeOf } from ".";
-import { GenerateException, SpecMismatchException } from "..";
+import { MatchingOutput, SpecTypeName, SpecTypes, Specs, matchingOutputTypeKeys, specTypeKeysIsDict, tryConvert } from ".";
+import { GenerateException, SpecMismatchException, specTypeKey } from "..";
 
 /**
  * A typeguard that checks if a {@link Jsonable} value is *not* of a given type, as represented by its {@link SpecTypeName}.
@@ -9,7 +9,7 @@ import { GenerateException, SpecMismatchException } from "..";
  * @param type - The type to check against.
  */
 export function isNotSameType<T extends SpecTypeName>(value: Jsonable, type: T): value is Exclude<Jsonable, SpecTypes[T]> {
-  return typeOf(value) !== type;
+  return specTypeKey(value) !== type;
 }
 
 /**

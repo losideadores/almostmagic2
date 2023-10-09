@@ -31,8 +31,11 @@ type TestSpecTypeKey2 = SpecTypeName<number>; // expected: 'number'
 /**
  * Infers the {@link SpecTypeName} based on the value’s type, provided it is one of the {@link SpecType}s.
  * Think of it as a `typeof`, where the possible return values are the {@link SpecTypeName}'s instead of the JavaScript primitive types.
+ * 
+ * @param value Value to infer the {@link SpecTypeName} for.
+ * @returns The {@link SpecTypeName} for the given value.
  */
-export const specTypeKey = <T extends SpecType>(value: T) =>
+export const specTypeKey = (value: Jsonable) =>
   is.number(value)
     ? 'number'
   : is.boolean(value)
@@ -82,6 +85,9 @@ export type SpecTypeKeys<T extends SpecTypeOrDict> =
 
 /**
  * A typeguard that checks whether a given value of type {@link SpecTypeKeys} is a dict-like, i.e. a {@link SpecTypeKeysDict}.
+ * 
+ * @param value Value to check.
+ * @returns `true` (narrowing `value` to {@link SpecTypeKeysDict}) if `value` is a dict-like, `false` (narrowing `value` to {@link SpecTypeKeysSingle}) otherwise.
  */
 export const specTypeKeysIsDict = <T extends SpecTypeOrDict>(
   value: SpecTypeKeys<T>
