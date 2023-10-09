@@ -37,7 +37,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">Generator</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/ac3f7a0/src/generator.ts#L22">src/generator.ts:22</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L11">src/generator.ts:11</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -49,7 +49,8 @@
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
-<div class="tsd-index-list"><a href="Generator.html#config" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>config</span></a>
+<div class="tsd-index-list"><a href="Generator.html#options" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>options?</span></a>
+<a href="Generator.html#outputSpecs" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>output<wbr/>Specs</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
@@ -60,7 +61,7 @@
 <section class="tsd-panel tsd-member"><a id="constructor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="constructor.new_Generator"><span class="tsd-kind-constructor-signature">new <wbr/>Generator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">config</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Generator.html" class="tsd-signature-type tsd-kind-class">Generator</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span><a href="#constructor.new_Generator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="constructor.new_Generator"><span class="tsd-kind-constructor-signature">new <wbr/>Generator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">outputSpecs</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Generator.html" class="tsd-signature-type tsd-kind-class">Generator</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span><a href="#constructor.new_Generator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Creates a new Generator.</p>
 </div>
@@ -75,24 +76,25 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">config</span>: <a href="../types/GeneratorConfig.html" class="tsd-signature-type tsd-kind-type-alias">GeneratorConfig</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></h5>
-<div class="tsd-comment tsd-typography"><p>Configuration for the Generator.</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h5><span class="tsd-kind-parameter">outputSpecs</span>: <span class="tsd-signature-type tsd-kind-type-parameter">O</span></h5></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">options</span>: <a href="../types/GenerateOptions.html" class="tsd-signature-type tsd-kind-type-alias">GenerateOptions</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Generator.html" class="tsd-signature-type tsd-kind-class">Generator</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/ac3f7a0/src/generator.ts#L31">src/generator.ts:31</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L20">src/generator.ts:20</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
-<section class="tsd-panel tsd-member"><a id="config" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>config</span><a href="#config" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">config</span><span class="tsd-signature-symbol">:</span> <a href="../types/GeneratorConfig.html" class="tsd-signature-type tsd-kind-type-alias">GeneratorConfig</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></div>
-<div class="tsd-comment tsd-typography"><p>Configuration for the Generator.</p>
-</div>
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<section class="tsd-panel tsd-member"><a id="options" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>options</span><a href="#options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">options</span><span class="tsd-signature-symbol">?:</span> <a href="../types/GenerateOptions.html" class="tsd-signature-type tsd-kind-type-alias">GenerateOptions</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/ac3f7a0/src/generator.ts#L32">src/generator.ts:32</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L22">src/generator.ts:22</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="outputSpecs" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>output<wbr/>Specs</span><a href="#outputSpecs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">output<wbr/>Specs</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type tsd-kind-type-parameter">O</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L21">src/generator.ts:21</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="generateFor" class="tsd-anchor"></a>
@@ -118,7 +120,7 @@
 <h4>Throws</h4><p>if an error occurred and <code>options.throwOnFailure</code> is true.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/ac3f7a0/src/generator.ts#L41">src/generator.ts:41</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L31">src/generator.ts:31</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -139,7 +141,8 @@
 <div class="tsd-accordion-details">
 <ul>
 <li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li>
-<li><a href="#config" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>config</span></a></li>
+<li><a href="#options" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>options</span></a></li>
+<li><a href="#outputSpecs" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>output<wbr/>Specs</span></a></li>
 <li><a href="#generateFor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>generate<wbr/>For</span></a></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../modules.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg><span>almostmagic2</span></a>
@@ -153,7 +156,6 @@
 <li><a href="../types/GenerateExceptionType.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>GenerateExceptionType</a></li>
 <li><a href="../types/GenerateOptions.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>GenerateOptions</a></li>
 <li><a href="../types/GenerateOptionsBase.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>GenerateOptionsBase</a></li>
-<li><a href="../types/GeneratorConfig.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>GeneratorConfig</a></li>
 <li><a href="../types/InferTypeFromKey.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>InferTypeFromKey</a></li>
 <li><a href="../types/InferTypeFromSpecEntry.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>InferTypeFromSpecEntry</a></li>
 <li><a href="../types/InferTypeFromValue.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>InferTypeFromValue</a></li>
@@ -165,6 +167,7 @@
 <li><a href="../types/MatchingSpecs.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>MatchingSpecs</a></li>
 <li><a href="../types/Role.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>Role</a></li>
 <li><a href="../types/SpecKeyTemplates.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>SpecKeyTemplates</a></li>
+<li><a href="../types/SpecType.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>SpecType</a></li>
 <li>Loading...</li></ul></nav></div></div></div>
 <div class="tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" rel="noopener" target="_blank">TypeDoc</a></p></div>
