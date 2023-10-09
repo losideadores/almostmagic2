@@ -1,7 +1,7 @@
 import { dump } from "js-yaml";
 import { Jsonable } from "vovas-utils";
 import { MatchingOutput, SpecTypeNamesDict, SpecTypeNamesSingle, Specs } from "./specs";
-import { generate } from "..";
+import { generate } from "./generate";
 
 /**
  * Type for exceptions that can be generated.
