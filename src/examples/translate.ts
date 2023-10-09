@@ -1,7 +1,7 @@
 import { generate } from "../generate";
 
 /**
- * Array of language codes representing the languages supported by the `translate` function.
+ * Array of language codes representing the languages supported by the {@link translate} function.
  * @example
  * console.log(languages) // => ['en', 'fr', 'de', ...]
  */
@@ -10,7 +10,7 @@ export const languages = [
 ] as const;
 
 /**
- * Type representing a language code from the `languages` array.
+ * Type representing a language code from the {@link languages} array.
  */
 export type Language = (typeof languages)[number];
 
