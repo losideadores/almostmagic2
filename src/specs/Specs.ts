@@ -121,6 +121,7 @@ export const specKeyTemplates = {
   // Note: This will also be triggered on "normal" words starting with "is", e.g. "island".
   // TODO: Think of a different way to do this (require an underscore prefix, i.e. "is_paid" instead of "isPaid"?)
   // TODO: Make values take precedence over keys to override this by explicitly specifying a type in the description (e.g. { island: 'string' }})
+  number: [null, null, 'Number'],
   'string[]': [null, null, 'Array'],
   string: [null, null, 'String'],
 } as const;
