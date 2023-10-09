@@ -41,7 +41,7 @@ export const specValueTemplates = {
   number: ['number', null, '(number)'],
   boolean: ['boolean', 'true if ', '(boolean)'],
   'number[]': ['array of numbers', 'array of numbers', '(array of numbers)'],
-  'string[]': ['array of strings', null, '(array of strings)'],
+  'string[]': ['array of strings', 'array of strings', '(array of strings)'],
   string: ['string', 'string', '(string)'],
 } as const;
 
