@@ -584,6 +584,11 @@ agentkeepalive@^4.2.1:
   dependencies:
     humanize-ms "^1.2.1"
 
+ansi-sequence-parser@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/ansi-sequence-parser/-/ansi-sequence-parser-1.1.1.tgz#e0aa1cdcbc8f8bb0b5bca625aac41f5f056973cf"
+  integrity sha512-vJXt3yiaUL4UU546s3rPXlsry/RnM730G1+HkpKE012AN0sx1eOrxSu95oKDIonskeLTijMgqWZ3uDEe3NFvyg==
+
 ansi-styles@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-3.2.1.tgz#41fbb20243e50b12be0f04b8dedbf07520ce841d"
@@ -1096,6 +1101,11 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
+lunr@^2.3.9:
+  version "2.3.9"
+  resolved "https://registry.yarnpkg.com/lunr/-/lunr-2.3.9.tgz#18b123142832337dd6e964df1a5a7707b25d35e1"
+  integrity sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==
+
 magic-string@^0.27.0:
   version "0.27.0"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.27.0.tgz#e4a3413b4bab6d98d2becffd48b4a257effdbbf3"
@@ -1109,6 +1119,11 @@ magic-string@^0.30.0, magic-string@^0.30.2:
   integrity sha512-lNZdu7pewtq/ZvWUp9Wpf/x7WzMTsR26TWV03BRZrXFsv+BI6dy8RAiKgm1uM/kyR0rCfUcqvOlXKG66KhIGug==
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.4.15"
+
+marked@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-4.3.0.tgz#796362821b019f734054582038b116481b456cf3"
+  integrity sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A==
 
 md5@^2.3.0:
   version "2.3.0"
@@ -1148,6 +1163,13 @@ minimatch@^5.0.1:
   version "5.1.6"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-5.1.6.tgz#1cfcb8cf5522ea69952cd2af95ae09477f122a96"
   integrity sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==
+  dependencies:
+    brace-expansion "^2.0.1"
+
+minimatch@^9.0.3:
+  version "9.0.3"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-9.0.3.tgz#a6e00c3de44c3a542bfaae70abfc22420a6da825"
+  integrity sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==
   dependencies:
     brace-expansion "^2.0.1"
 
@@ -1320,6 +1342,16 @@ semver@^6.3.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
 
+shiki@^0.14.1:
+  version "0.14.4"
+  resolved "https://registry.yarnpkg.com/shiki/-/shiki-0.14.4.tgz#2454969b466a5f75067d0f2fa0d7426d32881b20"
+  integrity sha512-IXCRip2IQzKwxArNNq1S+On4KPML3Yyn8Zzs/xRgcgOWIr8ntIK3IKzjFPfjy/7kt9ZMjc+FItfqHRBg8b6tNQ==
+  dependencies:
+    ansi-sequence-parser "^1.1.0"
+    jsonc-parser "^3.2.0"
+    vscode-oniguruma "^1.7.0"
+    vscode-textmate "^8.0.0"
+
 slash@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-4.0.0.tgz#2422372176c4c6c5addb5e2ada885af984b396a7"
@@ -1353,6 +1385,16 @@ tr46@~0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/tr46/-/tr46-0.0.3.tgz#8184fd347dac9cdc185992f3a6622e14b9d9ab6a"
   integrity sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==
+
+typedoc@^0.25.2:
+  version "0.25.2"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.25.2.tgz#39f525c28b6eb61da54dda4ec6b1500df620bed8"
+  integrity sha512-286F7BeATBiWe/qC4PCOCKlSTwfnsLbC/4cZ68oGBbvAqb9vV33quEOXx7q176OXotD+JdEerdQ1OZGJ818lnA==
+  dependencies:
+    lunr "^2.3.9"
+    marked "^4.3.0"
+    minimatch "^9.0.3"
+    shiki "^0.14.1"
 
 typescript@^5.0.4:
   version "5.1.6"
@@ -1433,6 +1475,16 @@ vovas-utils@^0.6.0:
   dependencies:
     js-yaml "^4.1.0"
     lodash "^4.17.21"
+
+vscode-oniguruma@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/vscode-oniguruma/-/vscode-oniguruma-1.7.0.tgz#439bfad8fe71abd7798338d1cd3dc53a8beea94b"
+  integrity sha512-L9WMGRfrjOhgHSdOYgCt/yRMsXzLDJSL7BPrOZt73gU0iWO4mpqzqQzOz5srxqTvMBaR0XZTSrVWo4j55Rc6cA==
+
+vscode-textmate@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/vscode-textmate/-/vscode-textmate-8.0.0.tgz#2c7a3b1163ef0441097e0b5d6389cd5504b59e5d"
+  integrity sha512-AFbieoL7a5LMqcnOF04ji+rpXadgOXnZsxQr//r83kLPr7biP7am3g9zbaZIaBGwBRWeSvoMD4mgPdX3e4NWBg==
 
 web-streams-polyfill@4.0.0-beta.3:
   version "4.0.0-beta.3"
