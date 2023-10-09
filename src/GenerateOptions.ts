@@ -3,6 +3,7 @@ import { GenerateMeta } from "./GenerateMeta";
 import { Specs } from "./specs/Specs";
 import { MatchingOutput } from "./specs/MatchingOutput";
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions";
+import { ClientOptions } from "openai";
 
 /**
  * Base options for the {@link generate} function.
@@ -22,7 +23,14 @@ export type GenerateOptionsBase = {
   
   /** If true, an error will be thrown if the generation fails. */
   throwOnFailure?: boolean;
-};
+
+} & Partial<
+  Pick<
+    ChatCompletionCreateParamsBase, 
+    'model' | 'temperature' | 'top_p' | 'max_tokens' | 
+    'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'
+    >
+> & Omit<ClientOptions, 'apiKey'>;
 
 /**
  * An example for the generate function.
@@ -53,11 +61,7 @@ export type GenerateExample<I extends Inputs, O extends Specs> =
 export type GenerateOptions<
   O extends Specs,
   I extends Inputs
-> = Partial<Pick<
-  ChatCompletionCreateParamsBase, 
-  'model' | 'temperature' | 'top_p' | 'max_tokens' | 
-  'presence_penalty' | 'frequency_penalty' | 'logit_bias' | 'user'
->> & GenerateOptionsBase & {
+> = GenerateOptionsBase & {
   /** The examples to use for the generation. */
   examples?: GenerateExample<I, O>[];
   /** A function to post process the output of the generation. */

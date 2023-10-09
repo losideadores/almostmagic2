@@ -9,6 +9,7 @@ import { Inputs } from "./specs/Inputs";
 import { Specs } from "./specs/Specs";
 import { castToSpecs } from "./specs/castToSpecs";
 import { MatchingOutput } from "./specs";
+import _ from "lodash";
 
 /**
  * Default metadata for the generate function.
@@ -52,11 +53,19 @@ export async function generate<O extends Specs, I extends Inputs>(
     ...options
   };
 
+  const openaiRequestOptionKeys = [
+    'model', 'temperature', 'top_p', 'max_tokens', 
+    'presence_penalty', 'frequency_penalty', 'logit_bias', 'user'
+  ] as const;
+
+  const openaiRequestOptions = _.pick(openaiOptions, openaiRequestOptionKeys);
+  const openaiConfigOptions = _.omit(openaiOptions, openaiRequestOptionKeys);
+
   const openai = new OpenAI({
     apiKey: openaiApiKey ??
       process.env.OPENAI_API_KEY ??
       $throw('OpenAI API key is required either as `options.openaiApiKey` or as `process.env.OPENAI_API_KEY`'),
-    dangerouslyAllowBrowser: true
+    ...openaiConfigOptions
   });
 
   const messages = composeChatPrompt(
@@ -70,7 +79,7 @@ export async function generate<O extends Specs, I extends Inputs>(
 
   const requestData = {
     model: 'gpt-3.5-turbo',
-    ...openaiOptions,
+    ...openaiRequestOptions,
     messages
   };
 
