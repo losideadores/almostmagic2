@@ -1,4 +1,4 @@
-# almostmagic
+# It’s almost magic!
 
 `almostmagic` is a package that allows you to generate structured data using OpenAI's large language models (e.g. GPT-3.5/4). It's designed to be easy to use, with just one line of code needed in most cases, and highly compatible with TypeScript.
 
