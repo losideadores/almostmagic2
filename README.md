@@ -1,5 +1,7 @@
 # almostmagic
 
+## Ta
+
 `almostmagic` is a package that allows you to generate structured data using OpenAI's large language models (e.g. GPT-3.5/4). It's designed to be easy to use, with just one line of code needed in most cases, and highly compatible with TypeScript.
 
 ## Installation
@@ -15,13 +17,15 @@ Here's a simple example of how you can use `almostmagic` to generate an article'
 ```typescript
 import { generate } from 'almostmagic';
 
-process.env.OPENAI_API_KEY = 'sk-[...]' // See "API Key" section below
-
-await generate({
-  title: 'article title',
-  intro: 'lead paragraph for the article, written in an engaging style',
-  outline: 'section titles (array of strings)',
-} as const, { topic: 'quantum computing' });
+await generate(
+  {
+    title: 'article title',
+    intro: 'lead paragraph for the article, written in an engaging style',
+    outline: 'section titles (array of strings)',
+  } as const, // `as const` is necessary for correct type inference, see below
+  { topic: 'quantum computing' },
+  { openaiApiKey: 'sk-[...]' } // See "Authentication" section below
+);
 
 // {
 //   title: "Unlocking the Potential: Exploring the World of Quantum Computing",
@@ -38,7 +42,7 @@ await generate({
 
 In this example, `generate` is a function that takes two arguments: output specifications and inputs. The output specifications define the structure of the data you want to generate (see [Type Inference](#md:type-inference) for more details). The inputs are the data you provide to the function.
 
-NB: The `as const` assertion is necessary for correct type inference. It tells TypeScript to infer the literal types of the properties, rather than their general types.
+**NB: The `as const` assertion above is necessary for correct type inference. It tells TypeScript to infer the literal types of the properties, rather than their general types.**
 
 ## Generation quality and other OpenAI parameters
 
@@ -135,7 +139,7 @@ await generate(
 // 34
 ```
 
-## Type Inference
+## Type inference
 
 `almostmagic` uses a set of simple rules to infer the types of the properties it's generating based on their descriptions. These rules are as follows:
 
@@ -193,7 +197,7 @@ await generate(
 // }
 ```
 
-## API Key
+## Authentication
 
 `almostmagic` is essentially a wrapper around OpenAI’s API. To use it, you’ll need to [create an OpenAI account](https://beta.openai.com/) and [generate an API key](https://beta.openai.com/account/api-keys). All the usual [precautions](https://platform.openai.com/docs/api-reference/authentication) regarding API keys apply.
 
@@ -243,15 +247,15 @@ For example:
 ```typescript
 import { Generator } from 'almostmagic';
 
-const codeGenerator = new Generator(
+const magic = new Generator(
   'Concise, well-structured and commented code based on the user’s request (string)',
   { openaiApiKey: 'sk-[...]' }
 );
 
-const generateJavaScriptCode = (request: string) => 
-  codeGenerator.generateFor({ request, language: 'JavaScript' });
-
-await generateJavaScriptCode('A factorial function');
+await magic.generate(
+  'Concise, well-structured and commented code based on the user’s request (string)',
+  { request: 'A factorial function', language: 'JavaScript' }
+);
 
 // function factorial(n) {
 //   if (n < 0) {
@@ -262,13 +266,4 @@ await generateJavaScriptCode('A factorial function');
 //   }
 //   return n * factorial(n - 1);
 // }
-
-const generateHelloWorldIn = (language: string) => 
-  codeGenerator.generateFor({ request: 'A simple "Hello, world!" program', language });
-
-await generateHelloWorldIn('Python');
-
-// print("Hello, world!")
-
-// (These are esoteric examples, but you get the idea)
 ```

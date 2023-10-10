@@ -1,12 +1,10 @@
-import { GenerateOptions } from "./GenerateOptions";
+import { GenerateOptions, GenerateOptionsBase } from "./GenerateOptions";
 import { generate } from "./generate";
 import { Inputs } from "./specs/Inputs";
 import { Specs } from "./specs/Specs";
 
 /**
- * Class representing a Generator. This can be a handier alternative to the {@link generate} function if you want to reuse the same generation configuration (e.g. OpenAI API key, output specifications, etc.) from multiple places.
- * @template O Type of the outputs, extending {@link Specs}.
- * @template I Type of the inputs, extending {@link Inputs}.
+ * Class that, when instantiated, provides a handier alternative to the {@link generate} function if you want to reuse the same generation configuration (e.g. `openaiApiKey`, `dangerouslyAllowBrowser`, etc.) from multiple places.
  */
 export class Generator<
   O extends Specs,
@@ -14,25 +12,24 @@ export class Generator<
 > {
 
   /**
-   * Creates a new Generator.
-   * @param {GeneratorConfig<O, I>} config Configuration for the Generator.
+   * Creates a new Generator with the given options.
    */
   constructor(
-    public outputSpecs: O,
-    public options?: GenerateOptions<O, I>
+    public options: GenerateOptionsBase
   ) { };
 
   /**
-   * Generates data for the given inputs using the Generator's configuration. @see {@link generate} for more information.
-   * @param {I} inputs Inputs for the generation.
-   * @returns {Promise<MatchingOutput<O> | undefined>} Generated data according to the output specifications, or undefined if the generation failed and `options.throwOnFailure` is false.
-   * @throws {Error} if an error occurred and `options.throwOnFailure` is true.
+   * Generates data using the Generator's configuration. @see {@link generate} for more information.
    */
-  generateFor(inputs: I) {
-
-    const { outputSpecs, options } = this;
-    return generate(outputSpecs, inputs, options);
-
+  generate<I extends Inputs, O extends Specs>(
+    outputSpecs: O,
+    inputs?: I,
+    additionalOptions?: GenerateOptions<O, I>
+  ) {
+    return generate(outputSpecs, inputs, {
+      ...this.options,
+      ...additionalOptions
+    });
   };
 
 };

@@ -381,22 +381,19 @@ function translate(text, ...toLanguages) {
 
 class Generator {
   /**
-   * Creates a new Generator.
-   * @param {GeneratorConfig<O, I>} config Configuration for the Generator.
+   * Creates a new Generator with the given options.
    */
-  constructor(outputSpecs, options) {
-    this.outputSpecs = outputSpecs;
+  constructor(options) {
     this.options = options;
   }
   /**
-   * Generates data for the given inputs using the Generator's configuration. @see {@link generate} for more information.
-   * @param {I} inputs Inputs for the generation.
-   * @returns {Promise<MatchingOutput<O> | undefined>} Generated data according to the output specifications, or undefined if the generation failed and `options.throwOnFailure` is false.
-   * @throws {Error} if an error occurred and `options.throwOnFailure` is true.
+   * Generates data using the Generator's configuration. @see {@link generate} for more information.
    */
-  generateFor(inputs) {
-    const { outputSpecs, options } = this;
-    return generate(outputSpecs, inputs, options);
+  generate(outputSpecs, inputs, additionalOptions) {
+    return generate(outputSpecs, inputs, {
+      ...this.options,
+      ...additionalOptions
+    });
   }
 }
 
