@@ -290,6 +290,8 @@ For convenience, the package exports several handy functions demonstrating how y
 - [`swotAnalysis`](https://losideadores.github.io/almostmagic2/functions/swotAnalysis.html) generates a SWOT analysis for a given idea, as an object with `strengths`, `weaknesses`, `opportunities`, and `threats` properties, each representing an array of strings.
 - [`translate`](https://losideadores.github.io/almostmagic2/functions/translate.html) translates a given text from one language (doesn’t need specifying) to several other languages, as an object with keys corresponding to the requested target language codes and values corresponding to the translated text.
 
+You can find the source code for each of these functions by following the links above and clicking the "Defined in" link in the bottom of the page.
+
 ## API reference
 
 For complete documentation of every function, type, etc. exported by `almostmagic`, see the [API reference](https://losideadores.github.io/almostmagic2/modules.html).
