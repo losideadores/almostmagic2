@@ -55,7 +55,7 @@ await generate('A short story', { genre: 'sci-fi' }, { model: 'gpt-4' });
 You can also set all the following [parameters](https://beta.openai.com/docs/api-reference/completions/create) that OpenAI’s API supports: `model` (as mentioned above), `temperature`, `top_p` (here and below, note the snake_case), `max_tokens`, `presence_penalty`, `frequency_penalty`, `logit_bias`, `user`.
 
 ```typescript
-await generate('A really crazy nursery rhyme', { topic: 'space' }, { temperature: 2 });
+await generate('A nursery rhyme', { topic: 'zombies' }, { temperature: 1 });
 ```
 
 You can also set any of the OpenAI [config parameters](https://github.com/openai/openai-node/blob/master/src/index.ts), for example `dangerouslyAllowBrowser` to allow testing your code in the browser (not recommended for production use) or `organization` to set the organization ID for your request(s).
