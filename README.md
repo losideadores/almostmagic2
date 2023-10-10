@@ -187,7 +187,7 @@ await generate(
     isAvailable: 'Boolean', // Note that `boolean` is redundant here, as 'is...' names are inferred as booleans by default
     features: 'Array of strings',
     ratings: 'Recent ratings on a scale of 1 to 5 (array of numbers)',
-  },
+  } as const,
   { category: 'fashion' }
 );
 
