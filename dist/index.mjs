@@ -84,7 +84,7 @@ ${serialize(
   ];
 };
 
-const generatePrelims = (topic) => generate({
+const generateArticleBasics = (topic) => generate({
   title: "article title",
   intro: "article intro",
   outline: "section titles (array of strings)"
@@ -391,4 +391,4 @@ class Generator {
 
 const improve = (output, requestToImprove, options) => generate(matchingSpecs(output), { current: yaml.dump(output), requestToImprove }, options);
 
-export { GenerateException, GenerateMeta, Generator, SpecMismatchException, addDefaultOptions, babyNameIdeas, businessIdeas, castToSpecs, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, sentenceCase, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsDict, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, wrapWith };
+export { GenerateException, GenerateMeta, Generator, SpecMismatchException, addDefaultOptions, babyNameIdeas, businessIdeas, castToSpecs, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generateArticleBasics, getPostalCode, improve, isNotSameType, languages, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, sentenceCase, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsDict, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, wrapWith };

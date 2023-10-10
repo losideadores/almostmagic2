@@ -279,6 +279,17 @@ await magic.generate(
 // }
 ```
 
+## More examples
+
+For convenience, the package exports several handy functions demonstrating how you can use `almostmagic` to generate various types of data:
+- [`babyNameIdeas`](https://losideadores.github.io/almostmagic2/functions/babyNameIdeas.html) generates a list of baby name ideas, optionally based on a user request, as an array of strings.
+- [`businessIdeas`](https://losideadores.github.io/almostmagic2/functions/businessIdeas.html) generates a list of business ideas, optionally based on a user request, as an array of strings.
+- [`generateArticleBasics`](https://losideadores.github.io/almostmagic2/functions/generateArticleBasics.html) generates an article’s title, intro, and outline, as an object with `title`, `intro`, and `outline` properties, each representing a string or (in the case of `outline`) an array of strings.
+- [`getPostalCode`](https://losideadores.github.io/almostmagic2/functions/getPostalCode.html) tries to generate a postal code for a given location.
+- [`randomAddressLine`](https://losideadores.github.io/almostmagic2/functions/randomAddressLine.html) generates a random address line, optionally for a given location.
+- [`swotAnalysis`](https://losideadores.github.io/almostmagic2/functions/swotAnalysis.html) generates a SWOT analysis for a given idea, as an object with `strengths`, `weaknesses`, `opportunities`, and `threats` properties, each representing an array of strings.
+- [`translate`](https://losideadores.github.io/almostmagic2/functions/translate.html) translates a given text from one language (doesn’t need specifying) to several other languages, as an object with keys corresponding to the requested target language codes and values corresponding to the translated text.
+
 ## API reference
 
 For complete documentation of every function, type, etc. exported by `almostmagic`, see the [API reference](https://losideadores.github.io/almostmagic2/modules.html).

@@ -492,7 +492,7 @@ declare const composeChatPrompt: <O extends Specs, I extends Inputs>(outputs: O,
  * @param topic Topic to generate the article for.
  * @returns An object with `title`, `intro`, and `outline` properties.
  */
-declare const generatePrelims: (topic: string) => Promise<{
+declare const generateArticleBasics: (topic: string) => Promise<{
     readonly title: string;
     readonly intro: string;
     readonly outline: string[];
@@ -624,4 +624,4 @@ declare const improve: <O extends SpecTypeOrDict>(output: O, requestToImprove: s
     requestToImprove: string;
 }>) => Promise<MatchingOutput<MatchingSpecs<O>> | undefined>;
 
-export { EPSTemplate, GenerateExample, GenerateException, GenerateExceptionType, GenerateMeta, GenerateOptions, GenerateOptionsBase, Generator, InferTypeFromKey, InferTypeFromSpecEntry, InferTypeFromValue, Inputs, Language, MatchesTemplate, MatchingOutput, MatchingOutputTypeKeys, MatchingSpecs, Role, SpecKeyTemplates, SpecMismatchException, SpecType, SpecTypeName, SpecTypeNames, SpecTypeNamesDict, SpecTypeNamesSingle, SpecTypeOrDict, SpecTypes, SpecValueTemplates, Specs, TemplateExactMatch, TemplateFor, TemplatePrefix, TemplateSuffix, addDefaultOptions, babyNameIdeas, businessIdeas, castToSpecs, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generatePrelims, getPostalCode, improve, isNotSameType, languages, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, sentenceCase, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsDict, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, wrapWith };
+export { EPSTemplate, GenerateExample, GenerateException, GenerateExceptionType, GenerateMeta, GenerateOptions, GenerateOptionsBase, Generator, InferTypeFromKey, InferTypeFromSpecEntry, InferTypeFromValue, Inputs, Language, MatchesTemplate, MatchingOutput, MatchingOutputTypeKeys, MatchingSpecs, Role, SpecKeyTemplates, SpecMismatchException, SpecType, SpecTypeName, SpecTypeNames, SpecTypeNamesDict, SpecTypeNamesSingle, SpecTypeOrDict, SpecTypes, SpecValueTemplates, Specs, TemplateExactMatch, TemplateFor, TemplatePrefix, TemplateSuffix, addDefaultOptions, babyNameIdeas, businessIdeas, castToSpecs, chat, chatMessage, chatRoles, composeChatPrompt, defaultMeta, defaultOptions, generate, generateArticleBasics, getPostalCode, improve, isNotSameType, languages, matchesTemplate, matchingOutputTypeKeys, matchingSpecs, randomAddressLine, sentenceCase, serialize, specKeyTemplates, specTypeKey, specTypeKeysIsDict, specValueTemplates, swotAnalysis, templateExactMatch, templateFor, templatePrefix, templateSuffix, translate, tryConvert, typeBasedOnSpecEntry, typeBasedOnSpecKey, typeBasedOnSpecValue, wrapWith };

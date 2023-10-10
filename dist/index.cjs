@@ -92,7 +92,7 @@ ${serialize(
   ];
 };
 
-const generatePrelims = (topic) => generate({
+const generateArticleBasics = (topic) => generate({
   title: "article title",
   intro: "article intro",
   outline: "section titles (array of strings)"
@@ -414,7 +414,7 @@ exports.composeChatPrompt = composeChatPrompt;
 exports.defaultMeta = defaultMeta;
 exports.defaultOptions = defaultOptions;
 exports.generate = generate;
-exports.generatePrelims = generatePrelims;
+exports.generateArticleBasics = generateArticleBasics;
 exports.getPostalCode = getPostalCode;
 exports.improve = improve;
 exports.isNotSameType = isNotSameType;
