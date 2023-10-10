@@ -4,6 +4,20 @@
 
 *Note: For easier navigation and API reference, check out the [documentation](https://losideadores.github.io/almostmagic2/) page.*
 
+## Do I need it?
+
+Before diving into the technicalities of `almostmagic`, you might be wondering if you really need this package. After all, couldn't you just use the OpenAI SDK directly?
+
+The answer depends on your specific needs and use case. Here are a few reasons why you might want to consider using `almostmagic`:
+
+1. **Structured data generation**: The main selling point of `almostmagic` is its ability to generate structured data. Whether you need to generate an array of strings, a complex object with nested properties, or even a single value with a specific type, `almostmagic` has got you covered. This is particularly useful when you need to generate data that fits a specific schema or when you want to generate multiple related pieces of data in a single call.
+
+2. **Ease of use**: `almostmagic` simplifies the process of generating structured data using OpenAI's language models. You can define the structure of the data you want to generate in a simple, intuitive way, and `almostmagic` will take care of the rest. This can save you a lot of time and effort compared to manually crafting prompts and parsing the responses from the OpenAI API.
+
+3. **Type inference**: `almostmagic` automatically infers the types of the properties it's generating based on their descriptions. This can be a huge time-saver if you're working with TypeScript, as you don't have to manually define types for each property.
+
+In summary, if you're looking for a way to generate structured data using OpenAI's language models that is easy to use, flexible, and TypeScript-friendly, `almostmagic` might be just what you need. However, if you need more control over the generation process or want to use features that are not supported by `almostmagic`, you might be better off using the OpenAI SDK directly.
+
 ## Installation
 
 ```bash
