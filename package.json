@@ -1,7 +1,7 @@
 {
-  "name": "almostmagic2",
-  "version": "0.0.3",
-  "description": "almostmagic rewritten from scratch as a 100% client-side, OpenAI chat API-based package",
+  "name": "almostmagic",
+  "version": "0.2.1",
+  "description": "Wrapper for OpenAI’s GPT-x models to add AI to your app with one line of code. It’s almost magic!",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
