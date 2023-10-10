@@ -78,7 +78,7 @@ For example:
 ```typescript
 await generate(
   'An unusual but plausible idea for a new software product (string)', 
-  '{ area: 'healthcare' }'
+  { area: 'healthcare' }
 );
 
 // "IntelliDoc: A revolutionary AI-powered documentation assistant in healthcare"
