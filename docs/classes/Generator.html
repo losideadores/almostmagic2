@@ -16,28 +16,22 @@
 <li><a href="Generator.html">Generator</a></li></ul>
 <h1>Class Generator&lt;O, I&gt;</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>Class representing a Generator. This can be a handier alternative to the <a href="../functions/generate.html" class="tsd-kind-function">generate</a> function if you want to reuse the same generation configuration (e.g. OpenAI API key, output specifications, etc.) from multiple places.</p>
+<div class="tsd-comment tsd-typography"><p>Class that, when instantiated, provides a handier alternative to the <a href="../functions/generate.html" class="tsd-kind-function">generate</a> function if you want to reuse the same generation configuration (e.g. <code>openaiApiKey</code>, <code>dangerouslyAllowBrowser</code>, etc.) from multiple places.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></section> 
 <section class="tsd-panel">
 <h4>Type Parameters</h4>
 <ul class="tsd-type-parameter-list">
 <li>
-<h4><span class="tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol"> extends </span><a href="../types/Specs.html" class="tsd-signature-type tsd-kind-type-alias">Specs</a></h4>
-<div class="tsd-comment tsd-typography"><p>Type of the outputs, extending <a href="../types/Specs.html" class="tsd-kind-type-alias">Specs</a>.</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li>
+<h4><span class="tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol"> extends </span><a href="../types/Specs.html" class="tsd-signature-type tsd-kind-type-alias">Specs</a></h4></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol"> extends </span><a href="../types/Inputs.html" class="tsd-signature-type tsd-kind-type-alias">Inputs</a></h4>
-<div class="tsd-comment tsd-typography"><p>Type of the inputs, extending <a href="../types/Inputs.html" class="tsd-kind-type-alias">Inputs</a>.</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li></ul></section> 
+<h4><span class="tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol"> extends </span><a href="../types/Inputs.html" class="tsd-signature-type tsd-kind-type-alias">Inputs</a></h4></li></ul></section> 
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
 <li><span class="target">Generator</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L11">src/generator.ts:11</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/b8ea661/src/generator.ts#L9">src/generator.ts:9</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -49,21 +43,20 @@
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
-<div class="tsd-index-list"><a href="Generator.html#options" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>options?</span></a>
-<a href="Generator.html#outputSpecs" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>output<wbr/>Specs</span></a>
+<div class="tsd-index-list"><a href="Generator.html#options" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>options</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
-<div class="tsd-index-list"><a href="Generator.html#generateFor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>generate<wbr/>For</span></a>
+<div class="tsd-index-list"><a href="Generator.html#generate" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>generate</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
 <section class="tsd-panel tsd-member"><a id="constructor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="constructor.new_Generator"><span class="tsd-kind-constructor-signature">new <wbr/>Generator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">outputSpecs</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Generator.html" class="tsd-signature-type tsd-kind-class">Generator</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span><a href="#constructor.new_Generator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="constructor.new_Generator"><span class="tsd-kind-constructor-signature">new <wbr/>Generator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Generator.html" class="tsd-signature-type tsd-kind-class">Generator</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span><a href="#constructor.new_Generator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Creates a new Generator.</p>
+<div class="tsd-comment tsd-typography"><p>Creates a new Generator with the given options.</p>
 </div>
 <section class="tsd-panel">
 <h4>Type Parameters</h4>
@@ -76,51 +69,49 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">outputSpecs</span>: <span class="tsd-signature-type tsd-kind-type-parameter">O</span></h5></li>
-<li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">options</span>: <a href="../types/GenerateOptions.html" class="tsd-signature-type tsd-kind-type-alias">GenerateOptions</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
+<h5><span class="tsd-kind-parameter">options</span>: <a href="../types/GenerateOptionsBase.html" class="tsd-signature-type tsd-kind-type-alias">GenerateOptionsBase</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Generator.html" class="tsd-signature-type tsd-kind-class">Generator</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L20">src/generator.ts:20</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/b8ea661/src/generator.ts#L17">src/generator.ts:17</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="options" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>options</span><a href="#options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">options</span><span class="tsd-signature-symbol">?:</span> <a href="../types/GenerateOptions.html" class="tsd-signature-type tsd-kind-type-alias">GenerateOptions</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
+<h3 class="tsd-anchor-link"><span>options</span><a href="#options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">options</span><span class="tsd-signature-symbol">:</span> <a href="../types/GenerateOptionsBase.html" class="tsd-signature-type tsd-kind-type-alias">GenerateOptionsBase</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L22">src/generator.ts:22</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member"><a id="outputSpecs" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>output<wbr/>Specs</span><a href="#outputSpecs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">output<wbr/>Specs</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type tsd-kind-type-parameter">O</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L21">src/generator.ts:21</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/b8ea661/src/generator.ts#L18">src/generator.ts:18</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
-<section class="tsd-panel tsd-member"><a id="generateFor" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>generate<wbr/>For</span><a href="#generateFor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<section class="tsd-panel tsd-member"><a id="generate" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>generate</span><a href="#generate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="generateFor.generateFor-1"><span class="tsd-kind-call-signature">generate<wbr/>For</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">inputs</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../types/MatchingOutput.html" class="tsd-signature-type tsd-kind-type-alias">MatchingOutput</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><a href="#generateFor.generateFor-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="generate.generate-1"><span class="tsd-kind-call-signature">generate</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">outputSpecs</span>, <span class="tsd-kind-parameter">inputs</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">additionalOptions</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../types/MatchingOutput.html" class="tsd-signature-type tsd-kind-type-alias">MatchingOutput</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><a href="#generate.generate-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Generates data for the given inputs using the Generator&#39;s configuration.</p>
+<div class="tsd-comment tsd-typography"><p>Generates data using the Generator&#39;s configuration.</p>
 </div>
+<section class="tsd-panel">
+<h4>Type Parameters</h4>
+<ul class="tsd-type-parameter-list">
+<li>
+<h4><span class="tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol"> extends </span><a href="../types/Inputs.html" class="tsd-signature-type tsd-kind-type-alias">Inputs</a></h4></li>
+<li>
+<h4><span class="tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol"> extends </span><a href="../types/Specs.html" class="tsd-signature-type tsd-kind-type-alias">Specs</a></h4></li></ul></section>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">inputs</span>: <span class="tsd-signature-type tsd-kind-type-parameter">I</span></h5>
-<div class="tsd-comment tsd-typography"><p>Inputs for the generation.</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../types/MatchingOutput.html" class="tsd-signature-type tsd-kind-type-alias">MatchingOutput</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4><p>Generated data according to the output specifications, or undefined if the generation failed and <code>options.throwOnFailure</code> is false.</p>
-
+<h5><span class="tsd-kind-parameter">outputSpecs</span>: <span class="tsd-signature-type tsd-kind-type-parameter">O</span></h5></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">inputs</span>: <span class="tsd-signature-type tsd-kind-type-parameter">I</span></h5></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">additionalOptions</span>: <a href="../types/GenerateOptions.html" class="tsd-signature-type tsd-kind-type-alias">GenerateOptions</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">I</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../types/MatchingOutput.html" class="tsd-signature-type tsd-kind-type-alias">MatchingOutput</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">O</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography">
 <h4>See</h4><p><a href="../functions/generate.html" class="tsd-kind-function">generate</a> for more information.</p>
-
-<h4>Throws</h4><p>if an error occurred and <code>options.throwOnFailure</code> is true.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/e76f483/src/generator.ts#L31">src/generator.ts:31</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/losideadores/almostmagic2/blob/b8ea661/src/generator.ts#L24">src/generator.ts:24</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -142,8 +133,7 @@
 <ul>
 <li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li>
 <li><a href="#options" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>options</span></a></li>
-<li><a href="#outputSpecs" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>output<wbr/>Specs</span></a></li>
-<li><a href="#generateFor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>generate<wbr/>For</span></a></li></ul></div></details></div>
+<li><a href="#generate" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>generate</span></a></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../modules.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg><span>almostmagic2</span></a>
 <ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="..">

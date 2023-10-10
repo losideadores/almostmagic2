@@ -1,8 +1,19 @@
 # almostmagic
 
-## Ta
-
 `almostmagic` is a package that allows you to generate structured data using OpenAI's large language models (e.g. GPT-3.5/4). It's designed to be easy to use, with just one line of code needed in most cases, and highly compatible with TypeScript.
+
+- [Installation](#md:installation)
+- [Usage](#md:usage)
+- [Generation quality and other OpenAI parameters](#md:generation-quality-and-other-openai-parameters)
+- [Defining output specifications (specs)](#md:defining-output-specifications-specs)
+  - [Single-string specs](#md:single-string-specs)
+  - [Array specs](#md:array-specs)
+  - [Object specs](#md:object-specs)
+- [Defining inputs](#md:defining-inputs)
+- [Type inference](#md:type-inference)
+- [Authentication](#md:authentication)
+- [Instantiation](#md:instantiation)
+- [API reference](https://losideadores.github.io/almostmagic2/modules.html)
 
 ## Installation
 
@@ -267,3 +278,7 @@ await magic.generate(
 //   return n * factorial(n - 1);
 // }
 ```
+
+## API reference
+
+For complete documentation of every function, type, etc. exported by `almostmagic`, see the [API reference](https://losideadores.github.io/almostmagic2/modules.html).
