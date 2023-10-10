@@ -132,7 +132,7 @@ await generate(
 // '“Gravitation is not responsible for people falling in love. Love is an infinite force that connects hearts and minds, transcending even the boundaries of time and space. With love, humanity has the power to create a world full of compassion, understanding, and harmonious coexistence.” - Albert Einstein'
 
 await generate(
-  'Next number in sequence',
+  'Next number in sequence (number)',
   [1, 2, 3, 5, 8, 13, 21]
 )
 
