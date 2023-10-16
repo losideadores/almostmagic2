@@ -8,3 +8,4 @@ export * from './generate';
 export * from './generator';
 export * from './improve';
 export * from './specs';
+export * from './utils';

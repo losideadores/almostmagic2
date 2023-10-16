@@ -1,5 +1,4 @@
-import { MatchingOutput, Specs, generate } from "..";
-import { JsonableObject, is } from 'vovas-utils';
+import { generate } from "..";
 
 /**
  * Example function that generates article title, intro, and outline (array of section titles) for given topic.
